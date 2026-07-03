@@ -1,0 +1,90 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] -----------------------< com.example:tournament >-----------------------
+[INFO] Building tournament 0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] >>> spring-boot:3.2.5:run (default-cli) > test-compile @ tournament >>>
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ tournament ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] Copying 0 resource from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.11.0:compile (default-compile) @ tournament ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ tournament ---
+[INFO] skip non existing resourceDirectory C:\tournament\backend\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.11.0:testCompile (default-testCompile) @ tournament ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] <<< spring-boot:3.2.5:run (default-cli) < test-compile @ tournament <<<
+[INFO] 
+[INFO] 
+[INFO] --- spring-boot:3.2.5:run (default-cli) @ tournament ---
+[INFO] Attaching agents: []
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v3.2.5)
+
+2026-07-03T16:34:48.251+07:00  INFO 16664 --- [tournament] [           main] c.e.tournament.TournamentApplication     : Starting TournamentApplication using Java 17.0.15 with PID 16664 (C:\tournament\backend\target\classes started by rochy in C:\tournament\backend)
+2026-07-03T16:34:48.259+07:00  INFO 16664 --- [tournament] [           main] c.e.tournament.TournamentApplication     : No active profile set, falling back to 1 default profile: "default"
+2026-07-03T16:34:49.523+07:00  INFO 16664 --- [tournament] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-07-03T16:34:49.618+07:00  INFO 16664 --- [tournament] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 82 ms. Found 5 JPA repository interfaces.
+2026-07-03T16:34:50.384+07:00  INFO 16664 --- [tournament] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2026-07-03T16:34:50.396+07:00  INFO 16664 --- [tournament] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-07-03T16:34:50.396+07:00  INFO 16664 --- [tournament] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.20]
+2026-07-03T16:34:50.462+07:00  INFO 16664 --- [tournament] [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-07-03T16:34:50.470+07:00  INFO 16664 --- [tournament] [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 2117 ms
+2026-07-03T16:34:50.603+07:00  INFO 16664 --- [tournament] [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-07-03T16:34:50.659+07:00  INFO 16664 --- [tournament] [           main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.4.4.Final
+2026-07-03T16:34:50.690+07:00  INFO 16664 --- [tournament] [           main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-07-03T16:34:50.901+07:00  INFO 16664 --- [tournament] [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-07-03T16:34:50.938+07:00  INFO 16664 --- [tournament] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-07-03T16:34:51.123+07:00  INFO 16664 --- [tournament] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@baa9ce4
+2026-07-03T16:34:51.125+07:00  INFO 16664 --- [tournament] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-07-03T16:34:51.160+07:00  WARN 16664 --- [tournament] [           main] org.hibernate.dialect.Dialect            : HHH000511: The 5.5.0 version for [org.hibernate.dialect.MySQLDialect] is no longer supported, hence certain features may not work properly. The minimum supported version is 8.0.0. Check the community dialects project for available legacy versions.
+2026-07-03T16:34:51.166+07:00  WARN 16664 --- [tournament] [           main] org.hibernate.orm.deprecation            : HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-07-03T16:34:52.250+07:00  INFO 16664 --- [tournament] [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-07-03T16:34:52.404+07:00  INFO 16664 --- [tournament] [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-07-03T16:34:52.808+07:00  WARN 16664 --- [tournament] [           main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-07-03T16:34:53.086+07:00  INFO 16664 --- [tournament] [           main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@20ad64c, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@39a03ccc, org.springframework.security.web.context.SecurityContextHolderFilter@6a8ab98f, org.springframework.security.web.header.HeaderWriterFilter@397f925e, org.springframework.web.filter.CorsFilter@4db45d, org.springframework.security.web.authentication.logout.LogoutFilter@256d8f17, com.example.tournament.security.JwtAuthenticationFilter@5c194652, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@429dde4d, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@610d0067, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@89178b4, org.springframework.security.web.session.SessionManagementFilter@4afdb05e, org.springframework.security.web.access.ExceptionTranslationFilter@b1f36e5, org.springframework.security.web.access.intercept.AuthorizationFilter@7a482b3a]
+2026-07-03T16:34:53.416+07:00  INFO 16664 --- [tournament] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path ''
+2026-07-03T16:34:53.426+07:00  INFO 16664 --- [tournament] [           main] c.e.tournament.TournamentApplication     : Started TournamentApplication in 5.773 seconds (process running for 6.256)
+Hibernate: 
+    select
+        u1_0.id 
+    from
+        users u1_0 
+    where
+        u1_0.username=? 
+    limit
+        ?
+Hibernate: 
+    insert 
+    into
+        users
+        (created_at, email, password, role, updated_at, username) 
+    values
+        (?, ?, ?, ?, ?, ?)
+2026-07-03T16:34:53.711+07:00  INFO 16664 --- [tournament] [           main] c.e.tournament.config.DatabaseSeeder     : Admin user created successfully
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  01:55 min
+[INFO] Finished at: 2026-07-03T16:36:39+07:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.springframework.boot:spring-boot-maven-plugin:3.2.5:run (default-cli) on project tournament: Process terminated with exit code: 1 -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoExecutionException

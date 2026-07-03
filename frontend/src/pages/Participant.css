@@ -1,0 +1,133 @@
+.participant-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.participant-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  box-shadow: 0 2px 12px rgba(15, 23, 42, 0.05);
+  padding: 1rem;
+}
+
+.participant-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
+.participant-table th,
+.participant-table td {
+  padding: 0.95rem 1rem;
+  border-bottom: 1px solid #e2e8f0;
+  text-align: left;
+}
+
+.participant-table th {
+  background: #f8fafc;
+  font-size: 0.85rem;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.participant-table td {
+  color: #0f172a;
+}
+
+.participant-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.participant-empty {
+  padding: 2rem;
+  text-align: center;
+}
+
+.registration-panel {
+  margin-top: 2rem;
+  display: grid;
+  gap: 1.5rem;
+}
+
+.registration-section {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  padding: 1rem;
+}
+
+.registration-section h3 {
+  margin-top: 0;
+}
+
+.registration-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.registration-summary span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.85rem;
+  background: #f8fafc;
+  color: #334155;
+}
+
+.registration-list {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.registration-list th,
+.registration-list td {
+  padding: 0.75rem 0.9rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.registration-list th {
+  background: #f8fafc;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  color: #475569;
+}
+
+.registration-list td {
+  color: #0f172a;
+}
+
+.registration-empty {
+  padding: 1rem 0;
+  color: #64748b;
+}
+
+.registration-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.registration-select {
+  width: 100%;
+  max-width: 320px;
+}
+
+.registration-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
