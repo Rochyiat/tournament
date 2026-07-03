@@ -10,21 +10,23 @@ function Profile() {
       <NavBar />
       <div className="page-container profile-page">
         <div className="profile-card">
-          <h1>Profile</h1>
-          <div className="profile-details">
+          <div className="profile-card-header">
+            <h1 className="page-title">Profile</h1>
+          </div>
+          <dl className="profile-details">
             <div>
               <dt>Username</dt>
               <dd>{currentUser?.username ?? '—'}</dd>
             </div>
             <div>
               <dt>Role</dt>
-              <dd>{currentUser?.role ?? '—'}</dd>
+              <dd><span className="role-badge">{currentUser?.role ?? '—'}</span></dd>
             </div>
             <div>
               <dt>Email</dt>
               <dd>{currentUser?.email ?? '—'}</dd>
             </div>
-          </div>
+          </dl>
         </div>
       </div>
     </div>

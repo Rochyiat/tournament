@@ -1,45 +1,83 @@
+/* ═══════════════════════════════════════════════════════════════════
+   Profile.css
+   ═══════════════════════════════════════════════════════════════════ */
+
 .profile-page {
-  padding-top: 2rem;
+  padding-top: 0;
 }
 
 .profile-card {
-  background: #fff;
-  border: 1px solid #e2e8f0;
-  border-radius: 1rem;
-  box-shadow: 0 4px 24px rgba(15, 23, 42, 0.08);
-  padding: 2rem;
-  max-width: 700px;
-  margin: 0 auto;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  max-width: 600px;
+  overflow: hidden;
 }
 
-.profile-card h1 {
-  margin-bottom: 1rem;
-  font-size: 1.5rem;
-  color: #0f172a;
+.profile-card-header {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  background: rgba(0, 0, 0, 0.15);
+  position: relative;
+}
+.profile-card-header::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--primary), var(--success), transparent);
+  opacity: 0.50;
+}
+
+/* Override global h1 size inside the card header */
+.profile-card-header .page-title {
+  font-size: 1rem;
+  letter-spacing: 0.08em;
 }
 
 .profile-details {
   display: grid;
+  gap: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.profile-details > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border);
   gap: 1rem;
+}
+.profile-details > div:last-child {
+  border-bottom: none;
 }
 
 .profile-details dt {
-  font-size: 0.85rem;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #475569;
-  letter-spacing: 0.04em;
-  margin-bottom: 0.25rem;
+  color: var(--text-muted);
+  flex-shrink: 0;
 }
 
 .profile-details dd {
   margin: 0;
-  font-size: 1rem;
-  color: #0f172a;
+  font-size: 0.9rem;
   font-weight: 600;
+  color: var(--text);
+  text-align: right;
 }
 
 @media (max-width: 640px) {
-  .profile-card {
-    padding: 1.5rem;
+  .profile-details > div {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
   }
+  .profile-details dd { text-align: left; }
 }

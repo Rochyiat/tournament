@@ -1,133 +1,140 @@
-.participant-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+/* ═══════════════════════════════════════════════════════════════════
+   Participant.css
+   ═══════════════════════════════════════════════════════════════════ */
+
+.participant-subtitle {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  margin-top: 0.2rem;
+  font-weight: 500;
 }
 
+/* ── Card wrapper ────────────────────────────────────────────────── */
 .participant-card {
-  background: #fff;
-  border: 1px solid #e2e8f0;
-  border-radius: 0.75rem;
-  box-shadow: 0 2px 12px rgba(15, 23, 42, 0.05);
-  padding: 1rem;
-}
-
-.participant-table {
-  width: 100%;
-  border-collapse: collapse;
-  background: #fff;
-  border-radius: 0.75rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
   overflow: hidden;
 }
 
-.participant-table th,
-.participant-table td {
-  padding: 0.95rem 1rem;
-  border-bottom: 1px solid #e2e8f0;
-  text-align: left;
-}
-
-.participant-table th {
-  background: #f8fafc;
-  font-size: 0.85rem;
-  color: #475569;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.participant-table td {
-  color: #0f172a;
-}
-
-.participant-actions {
+.participant-card-header {
   display: flex;
-  gap: 0.5rem;
-}
-
-.participant-empty {
-  padding: 2rem;
-  text-align: center;
-}
-
-.registration-panel {
-  margin-top: 2rem;
-  display: grid;
-  gap: 1.5rem;
-}
-
-.registration-section {
-  background: #fff;
-  border: 1px solid #e2e8f0;
-  border-radius: 0.75rem;
-  padding: 1rem;
-}
-
-.registration-section h3 {
-  margin-top: 0;
-}
-
-.registration-summary {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
-}
-
-.registration-summary span {
-  display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.4rem 0.75rem;
-  border-radius: 9999px;
-  font-size: 0.85rem;
-  background: #f8fafc;
-  color: #334155;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  background: rgba(0, 0, 0, 0.18);
+  border-bottom: 1px solid var(--border);
 }
 
-.registration-list {
+.participant-card-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-secondary);
+}
+.participant-card-title svg { color: var(--primary); }
+
+.participant-card-count {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--primary);
+  background: var(--primary-dim);
+  border: 1px solid rgba(0, 200, 255, 0.20);
+  border-radius: var(--radius-pill);
+  padding: 0.2rem 0.65rem;
+}
+
+/* ── Table ───────────────────────────────────────────────────────── */
+.participant-table {
   width: 100%;
   border-collapse: collapse;
 }
 
-.registration-list th,
-.registration-list td {
-  padding: 0.75rem 0.9rem;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.registration-list th {
-  background: #f8fafc;
-  font-size: 0.85rem;
+.participant-table th {
+  padding: 0.75rem 1.1rem;
+  background: rgba(0, 0, 0, 0.12);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #475569;
+  color: var(--text-secondary);
+  text-align: left;
+  border-bottom: 1px solid var(--border);
 }
 
-.registration-list td {
-  color: #0f172a;
+.participant-table td {
+  padding: 0.85rem 1.1rem;
+  color: var(--text);
+  font-size: 0.9rem;
+  font-weight: 500;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
 }
 
-.registration-empty {
-  padding: 1rem 0;
-  color: #64748b;
+.participant-table tbody tr:last-child td {
+  border-bottom: none;
 }
 
-.registration-actions {
+.participant-table tbody tr {
+  transition: background var(--ease);
+}
+.participant-table tbody tr:hover td {
+  background: rgba(0, 200, 255, 0.04);
+}
+
+/* Row number */
+.participant-num {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+/* Name cell with avatar */
+.participant-name {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  justify-content: flex-end;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 600;
 }
 
-.registration-select {
-  width: 100%;
-  max-width: 320px;
-}
-
-.registration-info {
+.participant-avatar {
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--primary-dim);
+  border: 1px solid rgba(0, 200, 255, 0.22);
   display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  margin-bottom: 1rem;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--primary);
+  text-transform: uppercase;
+}
+
+/* Actions cell */
+.participant-actions {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+/* ── Responsive ─────────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .participant-table th:first-child,
+  .participant-table td:first-child {
+    display: none;
+  }
+  .participant-avatar { display: none; }
 }

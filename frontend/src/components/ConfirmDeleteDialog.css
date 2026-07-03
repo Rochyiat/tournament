@@ -1,51 +1,69 @@
 .dialog-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.45);
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 950;
   padding: 1rem;
 }
 
 .dialog-box {
-  background: #fff;
-  border-radius: 0.75rem;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
-  padding: 2rem;
-  max-width: 400px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 24px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,77,109,0.08);
   width: 100%;
+  max-width: 420px;
+  padding: 2rem 1.75rem;
   text-align: center;
-  animation: dialog-in 0.15s ease-out;
+  animation: dialog-in 0.18s ease-out;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
 }
 
 @keyframes dialog-in {
   from { opacity: 0; transform: scale(0.95) translateY(-8px); }
-  to   { opacity: 1; transform: scale(1)    translateY(0);    }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
 }
 
-.dialog-icon {
-  font-size: 2.5rem;
-  margin-bottom: 0.75rem;
+.dialog-icon-wrap {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: var(--danger-dim);
+  border: 1px solid rgba(255,77,109,0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--danger);
+  margin-bottom: 0.25rem;
 }
 
 .dialog-title {
-  font-size: 1.125rem;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1rem;
   font-weight: 700;
-  color: #0f172a;
-  margin-bottom: 0.5rem;
+  color: var(--text);
+  letter-spacing: 0.03em;
+  margin: 0;
 }
 
 .dialog-message {
-  font-size: 0.875rem;
-  color: #64748b;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
   line-height: 1.6;
-  margin-bottom: 1.5rem;
+  margin: 0 0 0.5rem;
+  max-width: 320px;
 }
 
 .dialog-actions {
   display: flex;
   gap: 0.75rem;
   justify-content: center;
+  margin-top: 0.25rem;
 }

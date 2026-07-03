@@ -1,5 +1,21 @@
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import {
+  LayoutDashboard,
+  Trophy,
+  Users,
+  UserCircle,
+  LogOut,
+  Zap,
+} from 'lucide-react'
+import './NavBar.css'
+
+const NAV_ITEMS = [
+  { to: '/dashboard',    label: 'Dashboard',    Icon: LayoutDashboard },
+  { to: '/tournaments',  label: 'Tournaments',  Icon: Trophy },
+  { to: '/participants', label: 'Participants', Icon: Users },
+  { to: '/profile',      label: 'Profile',      Icon: UserCircle },
+]
 
 function NavBar() {
   const { currentUser, logout } = useAuth()
@@ -11,30 +27,48 @@ function NavBar() {
   }
 
   return (
-    <nav className="navbar">
-      <NavLink to="/dashboard" className="navbar-brand">
-        Esport Tournament
+    <nav className="navbar" role="navigation" aria-label="Main navigation">
+      {/* Brand */}
+      <NavLink to="/dashboard" className="navbar-brand" aria-label="Go to dashboard">
+        <div className="navbar-brand-icon">
+          <Zap size={16} strokeWidth={2.5} />
+        </div>
+        <span className="navbar-brand-text">ESPORT<span className="navbar-brand-accent">HUB</span></span>
       </NavLink>
+
+      {/* Nav links */}
       <div className="navbar-links">
-        <NavLink to="/dashboard" className={({ isActive }) => 'navbar-link' + (isActive ? ' active' : '')}>
-          Dashboard
-        </NavLink>
-        <NavLink to="/tournaments" className={({ isActive }) => 'navbar-link' + (isActive ? ' active' : '')}>
-          Tournaments
-        </NavLink>
-        <NavLink to="/participants" className={({ isActive }) => 'navbar-link' + (isActive ? ' active' : '')}>
-          Participants
-        </NavLink>
-        <NavLink to="/profile" className={({ isActive }) => 'navbar-link' + (isActive ? ' active' : '')}>
-          Profile
-        </NavLink>
+        {NAV_ITEMS.map(({ to, label, Icon }) => (
+          <NavLink
+            key={to}
+            to={to}
+            className={({ isActive }) => 'navbar-link' + (isActive ? ' active' : '')}
+          >
+            <Icon size={15} strokeWidth={2} />
+            <span>{label}</span>
+          </NavLink>
+        ))}
       </div>
+
+      {/* User area */}
       <div className="navbar-user">
-        <span>
-          {currentUser?.username} <span className="role-badge">{currentUser?.role}</span>
-        </span>
-        <button className="btn btn-danger btn-sm" onClick={handleLogout}>
-          Logout
+        <div className="navbar-user-info">
+          <div className="navbar-avatar" aria-hidden="true">
+            {currentUser?.username?.[0]?.toUpperCase() ?? 'U'}
+          </div>
+          <div className="navbar-user-details">
+            <span className="navbar-username">{currentUser?.username}</span>
+            <span className="role-badge">{currentUser?.role}</span>
+          </div>
+        </div>
+        <button
+          className="navbar-logout-btn"
+          onClick={handleLogout}
+          aria-label="Logout"
+          title="Logout"
+        >
+          <LogOut size={15} strokeWidth={2} />
+          <span>Logout</span>
         </button>
       </div>
     </nav>

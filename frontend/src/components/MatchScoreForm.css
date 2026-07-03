@@ -1,0 +1,82 @@
+/* ── Match Score Form — VS layout ────────────────────────────────── */
+
+.score-vs-grid {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.score-player-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.65rem;
+  background: var(--bg-elevated, #1a2840);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.1rem 0.85rem;
+}
+
+.score-player-name {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: 0.04em;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 140px;
+}
+
+.score-label {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  text-align: center;
+  display: block;
+  margin-bottom: 0.4rem;
+}
+
+.score-input {
+  width: 80px !important;
+  text-align: center;
+  font-family: 'Orbitron', sans-serif !important;
+  font-size: 1.5rem !important;
+  font-weight: 700 !important;
+  padding: 0.5rem 0.5rem !important;
+  border-radius: var(--radius) !important;
+  /* spin buttons */
+  -moz-appearance: textfield;
+}
+.score-input::-webkit-outer-spin-button,
+.score-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.score-vs-divider {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 900;
+  letter-spacing: 0.10em;
+  color: var(--text-muted);
+  padding: 0.25rem 0.5rem;
+  background: var(--border);
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+}
+
+@media (max-width: 400px) {
+  .score-vs-grid {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+  .score-vs-divider { text-align: center; }
+}

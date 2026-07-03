@@ -1,112 +1,367 @@
 /* ═══════════════════════════════════════════════════════════════════
-   Bracket.css
-   All selectors are namespaced under .brk- so nothing in
-   TournamentDetail.css or index.css can interfere.
-
-   Architecture: column-slot layout.
-   Scroll: .brk-outer scrolls horizontally.
-   Cards:  fixed size, never resize.
+   Bracket.css  —  Esports visual theme
+   All selectors use the .brk- namespace.
+   NO changes to JSX, layout algorithm, or positioning logic.
    ═══════════════════════════════════════════════════════════════════ */
 
-/* ── Design tokens scoped to the bracket root ───────────────────── */
+/* ── Design tokens scoped to .brk-outer ─────────────────────────── */
 .brk-outer {
-  /* Colors */
-  --brk-bg:           #0b1628;
-  --brk-col:          #152038;
-  --brk-card:         #1c2d4a;
-  --brk-card-2:       #1f3254;
-  --brk-card-hover:   #253d63;
-  --brk-border:       rgba(56, 189, 248, 0.16);
-  --brk-border-hi:    rgba(56, 189, 248, 0.55);
-  --brk-text:         #e2eaf6;
-  --brk-text-dim:     #8da4c0;
-  --brk-text-muted:   #415978;
-  --brk-win-bg:       rgba(34, 197, 94, 0.10);
-  --brk-win-border:   rgba(34, 197, 94, 0.40);
+  --brk-bg:           #080f1c;
+  --brk-card:         #0f1e33;
+  --brk-card-hover:   #162540;
+  --brk-border:       rgba(0, 200, 255, 0.12);
+  --brk-border-hi:    rgba(0, 200, 255, 0.45);
+  --brk-text:         #dce8f5;
+  --brk-text-dim:     #7a97b8;
+  --brk-text-muted:   #344f6e;
+
+  --brk-win-bg:       rgba(34, 197, 94, 0.09);
+  --brk-win-border:   rgba(34, 197, 94, 0.38);
   --brk-win-text:     #4ade80;
+
   --brk-gold:         #f59e0b;
-  --brk-gold-border:  rgba(245, 158, 11, 0.50);
-  --brk-radius:       8px;
-  --brk-shadow:       0 2px 16px rgba(0, 0, 0, 0.55);
+  --brk-gold-dim:     rgba(245, 158, 11, 0.12);
+  --brk-gold-border:  rgba(245, 158, 11, 0.45);
+
+  --brk-radius:       10px;
+  --brk-shadow:       0 4px 20px rgba(0, 0, 0, 0.55);
 }
 
-/* ── Outer wrapper: provides scroll, dark background ────────────── */
+/* ── Outer wrapper ───────────────────────────────────────────────── */
+/*
+  Scroll, background, border.
+  DO NOT change overflow or width — layout engine depends on these.
+*/
 .brk-outer {
-  background: var(--brk-bg);
-  border-radius: 12px;
-  border: 1px solid rgba(56, 189, 248, 0.08);
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.45);
-  padding: 20px 20px 28px 20px;
+  background:
+    radial-gradient(ellipse 70% 40% at 50% 0%, rgba(0,200,255,0.04) 0%, transparent 70%),
+    var(--brk-bg);
+  border-radius: 14px;
+  border: 1px solid rgba(0, 200, 255, 0.07);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.50), inset 0 1px 0 rgba(0, 200, 255, 0.05);
+  padding: 24px 24px 32px 24px;
   overflow-x: auto;
   overflow-y: visible;
   -webkit-overflow-scrolling: touch;
-  /* Counteract any overflow:hidden on parent .bracket-card */
-  /* min-width:0 prevents flex parents from squishing this */
   min-width: 0;
-  /* Force the scrollable area to be at least as wide as its content */
   width: 100%;
   box-sizing: border-box;
 }
 
-.brk-outer::-webkit-scrollbar        { height: 5px; }
-.brk-outer::-webkit-scrollbar-track  { background: rgba(255,255,255,0.03); border-radius: 99px; }
-.brk-outer::-webkit-scrollbar-thumb  { background: rgba(56,189,248,0.28); border-radius: 99px; }
-.brk-outer::-webkit-scrollbar-thumb:hover { background: rgba(56,189,248,0.50); }
+/* Scrollbar */
+.brk-outer::-webkit-scrollbar        { height: 6px; }
+.brk-outer::-webkit-scrollbar-track  { background: rgba(255, 255, 255, 0.02); border-radius: 99px; }
+.brk-outer::-webkit-scrollbar-thumb  { background: rgba(0, 200, 255, 0.30); border-radius: 99px; }
+.brk-outer::-webkit-scrollbar-thumb:hover { background: rgba(0, 200, 255, 0.55); }
 
-/* ── Label row ──────────────────────────────────────────────────── */
+/* ── Round label row ─────────────────────────────────────────────── */
 .brk-label-row {
   display: flex;
   align-items: flex-end;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
   flex-shrink: 0;
 }
 
 .brk-col-label {
   flex-shrink: 0;
   text-align: center;
-  font-size: 11px;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 10px;
   font-weight: 800;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.20em;
   text-transform: uppercase;
   color: var(--brk-text-dim);
-  padding-bottom: 4px;
-  /* width and marginRight set inline */
+  padding-bottom: 6px;
+  /* width and marginRight set inline by Bracket.jsx — do not override */
 }
 
 .brk-col-label--champ {
   color: var(--brk-gold);
+  text-shadow: 0 0 12px rgba(245, 158, 11, 0.35);
 }
 
-/* ── Canvas: fixed pixel size, relative so children can absolute ── */
+/* ── Canvas (position: relative) ────────────────────────────────── */
+/*
+  DO NOT set overflow, width, or height here.
+  All three are set inline by Bracket.jsx.
+*/
 .brk-canvas {
   position: relative;
   flex-shrink: 0;
   overflow: visible;
-  /* width and height set inline from JS */
 }
 
-/* ── Round column ───────────────────────────────────────────────── */
+/* ── Round column ────────────────────────────────────────────────── */
+/* position, left, top, width, height all set inline */
 .brk-round-col {
   position: absolute;
-  /* left, top, width, height set inline */
 }
 
-/* ── Connector column ───────────────────────────────────────────── */
+/* ── Connector column ────────────────────────────────────────────── */
+/* position, left, top, width, height all set inline */
 .brk-connector-col {
   position: absolute;
-  /* left, top, width, height set inline */
 }
 
-/* ── Match slot inside a round column ──────────────────────────── */
+/* ── Match slot ──────────────────────────────────────────────────── */
+/*
+  Only left and top anchoring here.
+  Width is set inline. NO height — card determines its own height.
+*/
 .brk-match-slot {
   position: absolute;
   left: 0;
   width: 240px;
-  /* height is intentionally NOT set here — the card inside determines
-     its own height via min-height. The slot just anchors the top edge. */
 }
 
-/* ── Champion column ────────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════════
+   MATCH CARD  (.brk-card)
+
+   ⚠ Width MUST remain 240px (layout engine constant CARD_W).
+   ⚠ Height MUST remain auto/min-height (card grows with content).
+   ⚠ NO overflow:hidden — edit button and footer must not be clipped.
+   ══════════════════════════════════════════════════════════════════ */
+.brk-card {
+  width: 240px;
+  min-width: 240px;
+  min-height: 84px;
+  /* NO fixed height */
+  /* NO overflow: hidden */
+
+  background: var(--brk-card);
+  border: 1px solid var(--brk-border);
+  border-radius: var(--brk-radius);
+  box-shadow: var(--brk-shadow);
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  position: relative;
+  padding: 0;
+  margin: 0;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+}
+
+.brk-card:hover {
+  background: var(--brk-card-hover);
+  border-color: var(--brk-border-hi);
+  box-shadow: var(--brk-shadow), 0 0 22px rgba(0, 200, 255, 0.18);
+}
+
+/* ── Card head ───────────────────────────────────────────────────── */
+.brk-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px 5px;
+  flex-shrink: 0;
+  background: rgba(0, 0, 0, 0.22);
+  border-bottom: 1px solid rgba(0, 200, 255, 0.06);
+  border-radius: var(--brk-radius) var(--brk-radius) 0 0;
+}
+
+.brk-card__num {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--brk-text-muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* ── Status badge ────────────────────────────────────────────────── */
+.brk-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 8px;
+  border-radius: 99px;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  border: 1px solid transparent;
+}
+.brk-badge::before {
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.8;
+  flex-shrink: 0;
+}
+
+.brk-badge--ready    {
+  background: rgba(0, 200, 255, 0.12);
+  color: #67e8f9;
+  border-color: rgba(0, 200, 255, 0.22);
+}
+.brk-badge--ongoing  {
+  background: rgba(34, 197, 94, 0.12);
+  color: #4ade80;
+  border-color: rgba(34, 197, 94, 0.22);
+}
+.brk-badge--finished {
+  background: rgba(129, 140, 248, 0.12);
+  color: #a5b4fc;
+  border-color: rgba(129, 140, 248, 0.22);
+}
+.brk-badge--pending  {
+  background: rgba(100, 116, 139, 0.14);
+  color: #64748b;
+  border-color: rgba(100, 116, 139, 0.20);
+}
+
+/* ── Players area ────────────────────────────────────────────────── */
+.brk-card__players {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.brk-card__player {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 10px;
+  min-width: 0;
+  transition: background 0.12s ease;
+}
+
+.brk-card__player--win {
+  background: rgba(34, 197, 94, 0.10);
+  border-left: 2px solid rgba(34, 197, 94, 0.50);
+  position: relative;
+}
+
+.brk-card__divider {
+  height: 1px;
+  background: rgba(0, 200, 255, 0.07);
+  margin: 0 10px;
+  flex-shrink: 0;
+}
+
+/* Side label (P1 / P2) */
+.brk-card__side {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--brk-text-muted);
+  flex-shrink: 0;
+  width: 14px;
+}
+.brk-card__player--win .brk-card__side {
+  color: var(--brk-win-text);
+}
+
+/* Player name */
+.brk-card__name {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--brk-text);
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+}
+.brk-card__player--win .brk-card__name {
+  color: var(--brk-win-text);
+  font-weight: 700;
+}
+
+/* Score */
+.brk-card__score {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--brk-text-dim);
+  min-width: 18px;
+  text-align: right;
+  flex-shrink: 0;
+}
+.brk-card__player--win .brk-card__score {
+  color: var(--brk-win-text);
+  text-shadow: 0 0 10px rgba(74, 222, 128, 0.50);
+}
+
+/* ── Card footer ─────────────────────────────────────────────────── */
+/*
+  ALWAYS fully visible — NO overflow:hidden on .brk-card.
+*/
+.brk-card__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 5px 10px 7px;
+  background: rgba(0, 0, 0, 0.15);
+  border-top: 1px solid rgba(0, 200, 255, 0.06);
+  border-radius: 0 0 var(--brk-radius) var(--brk-radius);
+  flex-shrink: 0;
+}
+
+/* Winner name in footer */
+.brk-card__winner {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--brk-win-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+.brk-card__winner--empty {
+  /* placeholder keeps footer height consistent */
+  min-height: 1px;
+}
+
+/* Edit Score button */
+.brk-card__edit-btn {
+  flex-shrink: 0;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  padding: 3px 10px;
+  background: rgba(0, 200, 255, 0.12);
+  color: #67e8f9;
+  border: 1px solid rgba(0, 200, 255, 0.28);
+  border-radius: 6px;
+  cursor: pointer;
+  line-height: 1.5;
+  outline: none;
+  transition: background 0.14s ease, border-color 0.14s ease, box-shadow 0.14s ease;
+  white-space: nowrap;
+}
+.brk-card__edit-btn:hover {
+  background: rgba(0, 200, 255, 0.22);
+  border-color: rgba(0, 200, 255, 0.55);
+  box-shadow: 0 0 10px rgba(0, 200, 255, 0.20);
+}
+.brk-card__edit-btn:active {
+  background: rgba(0, 200, 255, 0.32);
+}
+.brk-card__edit-btn:focus-visible {
+  outline: 2px solid rgba(0, 200, 255, 0.60);
+  outline-offset: 2px;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   CHAMPION CARD  (.brk-champ-*)
+
+   ⚠ Position (left, top, width) set inline by BracketChampion.jsx.
+   ⚠ Do NOT override position, left, top, or width here.
+   ══════════════════════════════════════════════════════════════════ */
 .brk-champ-col {
   position: absolute;
   top: 0;
@@ -117,228 +372,75 @@
 
 .brk-champ-card {
   position: absolute;
-  /* top set inline (centered) */
+  /* top set inline (vertically centered by BracketChampion.jsx) */
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
   gap: 8px;
-  padding: 20px 12px;
-  background: linear-gradient(160deg, rgba(245,158,11,0.14) 0%, rgba(251,191,36,0.06) 100%);
-  border: 2px solid var(--brk-gold-border);
+  padding: 22px 14px;
+  background: linear-gradient(
+    160deg,
+    rgba(245, 158, 11, 0.18) 0%,
+    rgba(245, 158, 11, 0.07) 50%,
+    rgba(0, 0, 0, 0.15) 100%
+  );
+  border: 1.5px solid rgba(245, 158, 11, 0.55);
   border-radius: 14px;
-  box-shadow: 0 0 32px rgba(245,158,11,0.18), 0 8px 32px rgba(0,0,0,0.55);
+  box-shadow:
+    0 0 48px rgba(245, 158, 11, 0.22),
+    0 0 16px rgba(245, 158, 11, 0.10),
+    0 16px 48px rgba(0, 0, 0, 0.60),
+    inset 0 1px 0 rgba(245, 158, 11, 0.18);
   box-sizing: border-box;
+  transition: box-shadow 0.30s ease;
+}
+.brk-champ-card:hover {
+  box-shadow:
+    0 0 64px rgba(245, 158, 11, 0.30),
+    0 0 24px rgba(245, 158, 11, 0.15),
+    0 20px 56px rgba(0, 0, 0, 0.65),
+    inset 0 1px 0 rgba(245, 158, 11, 0.22);
 }
 
 .brk-champ__trophy {
-  font-size: 32px;
+  font-size: 34px;
   line-height: 1;
-  filter: drop-shadow(0 0 8px rgba(245,158,11,0.65));
+  filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.70));
 }
 
 .brk-champ__badge {
-  font-size: 9px;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 8px;
   font-weight: 800;
-  letter-spacing: 0.20em;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--brk-gold);
-  background: rgba(245,158,11,0.14);
-  padding: 3px 10px;
+  background: rgba(245, 158, 11, 0.12);
+  padding: 3px 12px;
   border-radius: 99px;
-  border: 1px solid rgba(245,158,11,0.28);
+  border: 1px solid rgba(245, 158, 11, 0.28);
 }
 
 .brk-champ__name {
-  font-size: 15px;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 14px;
   font-weight: 800;
   color: #fef3c7;
   max-width: 160px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  text-shadow: 0 0 12px rgba(245,158,11,0.50);
+  text-shadow: 0 0 16px rgba(245, 158, 11, 0.55);
+  letter-spacing: 0.03em;
 }
 
 .brk-champ__sub {
+  font-family: 'Rajdhani', sans-serif;
   font-size: 10px;
-  color: #c97c10;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-}
-
-/* ════════════════════════════════════════════════════════════════════
-   MATCH CARD  (.brk-card)
-   Width is fixed at 240px.
-   Height is min-height — grows naturally with content.
-   NO overflow:hidden — nothing inside should ever be clipped.
-   ════════════════════════════════════════════════════════════════════ */
-.brk-card {
-  width: 240px;
-  min-width: 240px;
-  /* min-height instead of fixed height — card grows when footer is present */
-  min-height: 80px;
-  /* NO height: fixed  — removed intentionally */
-  /* NO overflow: hidden — removed intentionally */
-
-  background: var(--brk-card);
-  border: 1px solid var(--brk-border);
-  border-radius: var(--brk-radius);
-  box-shadow: var(--brk-shadow);
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
-  transition: border-color 0.15s, box-shadow 0.15s;
-  position: relative;
-  padding: 0;
-  margin: 0;
-}
-
-.brk-card:hover {
-  border-color: var(--brk-border-hi);
-  box-shadow: var(--brk-shadow), 0 0 18px rgba(56,189,248,0.22);
-}
-
-/* Head: match number + status badge */
-.brk-card__head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 5px 8px 3px;
-  flex-shrink: 0;
-  background: rgba(0,0,0,0.15);
-}
-
-.brk-card__num {
-  font-size: 10px;
+  color: rgba(245, 158, 11, 0.55);
   font-weight: 700;
-  color: var(--brk-text-muted);
-  letter-spacing: 0.05em;
-  white-space: nowrap;
-}
-
-/* Status pill */
-.brk-badge {
-  padding: 2px 7px;
-  border-radius: 99px;
-  font-size: 9px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.10em;
   text-transform: uppercase;
-  white-space: nowrap;
-  display: inline-block;
-}
-.brk-badge--ready    { background: rgba(14,165,233,0.18); color: #7dd3fc; }
-.brk-badge--ongoing  { background: rgba(34,197, 94,0.18); color: #4ade80; }
-.brk-badge--finished { background: rgba(129,140,248,0.18);color: #c7d2fe; }
-.brk-badge--pending  { background: rgba(71,85,105,0.25);  color: #5c7599; }
-
-/* Players area */
-.brk-card__players {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  /* No padding here — players have their own */
-}
-
-.brk-card__player {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 8px;
-  min-width: 0;
-  transition: background 0.1s;
-}
-
-.brk-card__player--win {
-  background: var(--brk-win-bg);
-}
-
-.brk-card__divider {
-  height: 1px;
-  background: rgba(56,189,248,0.08);
-  margin: 0 8px;
-  flex-shrink: 0;
-}
-
-.brk-card__side {
-  font-size: 9px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--brk-text-muted);
-  flex-shrink: 0;
-  width: 14px;
-}
-.brk-card__player--win .brk-card__side { color: var(--brk-win-text); }
-
-.brk-card__name {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--brk-text);
-  flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.brk-card__player--win .brk-card__name {
-  color: var(--brk-win-text);
-  font-weight: 700;
-}
-
-.brk-card__score {
-  font-size: 13px;
-  font-weight: 800;
-  color: var(--brk-text);
-  min-width: 16px;
-  text-align: right;
-  flex-shrink: 0;
-}
-.brk-card__player--win .brk-card__score { color: var(--brk-win-text); }
-
-/* Footer: winner + edit button */
-.brk-card__foot {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 4px;
-  padding: 3px 8px 5px;
-  background: rgba(0,0,0,0.12);
-  flex-shrink: 0;
-}
-
-.brk-card__winner {
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--brk-win-text);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  flex: 1;
-}
-
-.brk-card__edit-btn {
-  flex-shrink: 0;
-  font-size: 10px;
-  font-weight: 700;
-  padding: 2px 8px;
-  background: rgba(56,189,248,0.14);
-  color: #7dd3fc;
-  border: 1px solid rgba(56,189,248,0.30);
-  border-radius: 5px;
-  cursor: pointer;
-  line-height: 1.5;
-  transition: background 0.12s, border-color 0.12s;
-  /* Reset button defaults */
-  font-family: inherit;
-  outline: none;
-}
-.brk-card__edit-btn:hover {
-  background: rgba(56,189,248,0.26);
-  border-color: rgba(56,189,248,0.55);
-}
-.brk-card__edit-btn:active {
-  background: rgba(56,189,248,0.38);
 }

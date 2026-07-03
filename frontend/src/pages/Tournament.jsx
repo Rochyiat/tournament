@@ -4,9 +4,19 @@ import { tournamentApi } from '../api/tournament'
 import TournamentForm from '../components/TournamentForm'
 import ConfirmDeleteDialog from '../components/ConfirmDeleteDialog'
 import EmptyState from '../components/EmptyState'
-import LoadingSpinner from '../components/LoadingSpinner'
+import LoadingSpinner, { SkeletonCard } from '../components/LoadingSpinner'
 import NavBar from '../components/NavBar'
 import { getApiErrorMessage } from '../util/apiError'
+import {
+  Trophy,
+  Plus,
+  Eye,
+  Pencil,
+  Trash2,
+  Users,
+  Gamepad2,
+  Calendar,
+} from 'lucide-react'
 import './Tournament.css'
 
 const STATUS_LABEL = {
@@ -27,17 +37,14 @@ function Tournament() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
-  // Modal state
   const [showForm, setShowForm] = useState(false)
-  const [editTarget, setEditTarget] = useState(null)   // null = create, object = edit
+  const [editTarget, setEditTarget] = useState(null)
   const [formLoading, setFormLoading] = useState(false)
   const [formError, setFormError] = useState('')
 
-  // Delete state
   const [deleteTarget, setDeleteTarget] = useState(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
 
-  // ── Fetch ──────────────────────────────────────────────
   const fetchTournaments = useCallback(async () => {
     setLoading(true)
     setError('')
@@ -53,21 +60,18 @@ function Tournament() {
 
   useEffect(() => { fetchTournaments() }, [fetchTournaments])
 
-  // ── Create ─────────────────────────────────────────────
   function openCreate() {
     setEditTarget(null)
     setFormError('')
     setShowForm(true)
   }
 
-  // ── Edit ───────────────────────────────────────────────
   function openEdit(t) {
     setEditTarget(t)
     setFormError('')
     setShowForm(true)
   }
 
-  // ── Form submit ────────────────────────────────────────
   async function handleFormSubmit(data) {
     setFormLoading(true)
     setFormError('')
@@ -89,7 +93,6 @@ function Tournament() {
     }
   }
 
-  // ── Delete ─────────────────────────────────────────────
   async function handleDeleteConfirm() {
     if (!deleteTarget) return
     setDeleteLoading(true)
@@ -104,64 +107,96 @@ function Tournament() {
     }
   }
 
-  // ── Render ─────────────────────────────────────────────
   return (
     <div>
       <NavBar />
       <div className="page-container">
         <div className="page-header">
-          <h1 className="page-title">Tournaments</h1>
-          <button className="btn btn-primary" onClick={openCreate}>+ New Tournament</button>
+          <div>
+            <h1 className="page-title">Tournaments</h1>
+            <p className="page-subtitle">Manage and track all esports tournaments</p>
+          </div>
+          <button className="btn btn-primary" onClick={openCreate}>
+            <Plus size={15} strokeWidth={2.5} />
+            New Tournament
+          </button>
         </div>
 
         {error && <div className="alert alert-error" role="alert">{error}</div>}
 
         {loading ? (
-          <LoadingSpinner message="Loading tournaments…" />
+          <div className="tournament-grid">
+            {Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)}
+          </div>
         ) : tournaments.length === 0 ? (
           <EmptyState
-            icon="🏆"
+            icon={Trophy}
             title="No tournaments yet"
             description="Create your first tournament to get started."
-            action={{ label: '+ New Tournament', onClick: openCreate }}
+            action={{ label: 'New Tournament', onClick: openCreate }}
           />
         ) : (
           <div className="tournament-grid">
             {tournaments.map((t) => (
-              <div key={t.id} className="tournament-card">
-                <div className="card-header">
-                  <span className={statusClass(t.status)}>{STATUS_LABEL[t.status] ?? t.status}</span>
-                  <span className="card-game">{t.game}</span>
-                </div>
+              <div key={t.id} className="tournament-card" onClick={() => navigate(`/tournaments/${t.id}`)}>
 
-                <h2 className="card-name">{t.name}</h2>
-                <p className="card-host">by {t.host}</p>
+                {/* Card top stripe by status */}
+                <div className={`tournament-card-stripe tournament-card-stripe--${t.status?.toLowerCase()}`} />
 
-                {t.description && (
-                  <p className="card-desc">{t.description}</p>
-                )}
+                <div className="tournament-card-inner">
+                  {/* Header row */}
+                  <div className="tournament-card-header">
+                    <span className={statusClass(t.status)}>{STATUS_LABEL[t.status] ?? t.status}</span>
+                    <span className="tournament-card-game">
+                      <Gamepad2 size={12} strokeWidth={2} />
+                      {t.game}
+                    </span>
+                  </div>
 
-                <div className="card-meta">
-                  <span>👥 Max {t.maxParticipants} participants</span>
-                </div>
+                  {/* Name */}
+                  <h2 className="tournament-card-name">{t.name}</h2>
+                  <p className="tournament-card-host">by {t.host}</p>
 
-                <div className="card-actions">
-                  <button
-                    className="btn btn-secondary btn-sm"
-                    onClick={() => navigate(`/tournaments/${t.id}`)}
-                  >
-                    View
-                  </button>
-                  {t.status === 'DRAFT' && (
-                    <>
-                      <button className="btn btn-ghost btn-sm" onClick={() => openEdit(t)}>
-                        Edit
-                      </button>
-                      <button className="btn btn-danger btn-sm" onClick={() => setDeleteTarget(t)}>
-                        Delete
-                      </button>
-                    </>
+                  {t.description && (
+                    <p className="tournament-card-desc">{t.description}</p>
                   )}
+
+                  {/* Meta */}
+                  <div className="tournament-card-meta">
+                    <span className="tournament-card-meta-item">
+                      <Users size={13} strokeWidth={2} />
+                      {t.maxParticipants} slots
+                    </span>
+                    {t.createdAt && (
+                      <span className="tournament-card-meta-item">
+                        <Calendar size={13} strokeWidth={2} />
+                        {new Date(t.createdAt).toLocaleDateString()}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Actions */}
+                  <div className="tournament-card-actions" onClick={(e) => e.stopPropagation()}>
+                    <button
+                      className="btn btn-secondary btn-sm"
+                      onClick={() => navigate(`/tournaments/${t.id}`)}
+                    >
+                      <Eye size={13} strokeWidth={2} />
+                      View
+                    </button>
+                    {t.status === 'DRAFT' && (
+                      <>
+                        <button className="btn btn-ghost btn-sm" onClick={() => openEdit(t)}>
+                          <Pencil size={13} strokeWidth={2} />
+                          Edit
+                        </button>
+                        <button className="btn btn-danger btn-sm" onClick={() => setDeleteTarget(t)}>
+                          <Trash2 size={13} strokeWidth={2} />
+                          Delete
+                        </button>
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
             ))}
@@ -169,7 +204,6 @@ function Tournament() {
         )}
       </div>
 
-      {/* Create / Edit modal */}
       {showForm && (
         <TournamentForm
           initialData={editTarget}
@@ -180,7 +214,6 @@ function Tournament() {
         />
       )}
 
-      {/* Delete confirmation */}
       {deleteTarget && (
         <ConfirmDeleteDialog
           title="Delete Tournament"
@@ -195,4 +228,3 @@ function Tournament() {
 }
 
 export default Tournament
-
