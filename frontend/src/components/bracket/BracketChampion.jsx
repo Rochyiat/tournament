@@ -1,24 +1,36 @@
 /**
  * BracketChampion
  *
- * The final column after all rounds — a gold trophy card.
- * Centered vertically in the bracket.
+ * Absolutely positioned champion column — the last column in the bracket.
+ * Vertically centered within the canvas.
  *
  * Props
- *  - championName : string
- *  - totalHeight  : number  (used to centre the card)
- *  - cardHeight   : number  (120px base card, champion is taller)
+ *  - championName : string   Tournament winner (empty = TBD)
+ *  - left         : number   Left edge of this column in the canvas (px)
+ *  - canvasHeight : number   Full canvas height for vertical centering (px)
+ *  - width        : number   Column width (px)
  */
-function BracketChampion({ championName, totalHeight }) {
+
+const CARD_H = 172  // champion card height
+
+function BracketChampion({ championName, left, canvasHeight, width }) {
+  const top = (canvasHeight - CARD_H) / 2
+
   return (
-    <div className="bch-col" style={{ height: totalHeight }}>
-      <div className="bch-card">
-        <div className="bch-trophy">🏆</div>
-        <div className="bch-badge">Champion</div>
-        <div className="bch-name" title={championName}>
+    <div
+      className="brk-champ-col"
+      style={{ left, top: 0, width, height: canvasHeight }}
+    >
+      <div
+        className="brk-champ-card"
+        style={{ top, width: width - 20 }}
+      >
+        <div className="brk-champ__trophy">🏆</div>
+        <div className="brk-champ__badge">Champion</div>
+        <div className="brk-champ__name" title={championName || 'TBD'}>
           {championName || 'TBD'}
         </div>
-        <div className="bch-sub">Tournament Winner</div>
+        <div className="brk-champ__sub">Tournament Winner</div>
       </div>
     </div>
   )

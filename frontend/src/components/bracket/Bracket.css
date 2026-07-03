@@ -1,452 +1,344 @@
-/* ═══════════════════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════════════════════
    Bracket.css
-   Professional esports-style tournament bracket
-   Dark background panel, glowing connectors, gold champion card.
-   Compatible with the light (#f1f5f9) page background.
-   ═══════════════════════════════════════════════════════════════ */
+   All selectors are namespaced under .brk- so nothing in
+   TournamentDetail.css or index.css can interfere.
 
-/* ── CSS custom properties ───────────────────────────────────── */
-:root {
-  --bc-color:         #38bdf8;   /* connector line colour     */
-  --bc-bg:            #0f172a;   /* bracket panel background  */
-  --bc-surface:       #1e293b;   /* card background           */
-  --bc-surface-2:     #263347;   /* player row background     */
-  --bc-border:        rgba(56, 189, 248, 0.18);
-  --bc-border-hover:  rgba(56, 189, 248, 0.45);
-  --bc-text-primary:  #f1f5f9;
-  --bc-text-secondary:#94a3b8;
-  --bc-text-muted:    #64748b;
-  --bc-winner-bg:     rgba(34, 197, 94, 0.12);
-  --bc-winner-border: rgba(34, 197, 94, 0.45);
-  --bc-winner-text:   #4ade80;
-  --bc-gold:          #f59e0b;
-  --bc-gold-dark:     #b45309;
-  --bc-gold-bg:       rgba(245, 158, 11, 0.12);
-  --bc-gold-border:   rgba(245, 158, 11, 0.55);
-  --bc-radius:        0.875rem;
-  --bc-shadow:        0 8px 32px rgba(0, 0, 0, 0.45);
-  --bc-glow:          0 0 12px rgba(56, 189, 248, 0.25);
+   Architecture: column-slot layout.
+   Scroll: .brk-outer scrolls horizontally.
+   Cards:  fixed size, never resize.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── Design tokens scoped to the bracket root ───────────────────── */
+.brk-outer {
+  /* Colors */
+  --brk-bg:           #0b1628;
+  --brk-col:          #152038;
+  --brk-card:         #1c2d4a;
+  --brk-card-2:       #1f3254;
+  --brk-card-hover:   #253d63;
+  --brk-border:       rgba(56, 189, 248, 0.16);
+  --brk-border-hi:    rgba(56, 189, 248, 0.55);
+  --brk-text:         #e2eaf6;
+  --brk-text-dim:     #8da4c0;
+  --brk-text-muted:   #415978;
+  --brk-win-bg:       rgba(34, 197, 94, 0.10);
+  --brk-win-border:   rgba(34, 197, 94, 0.40);
+  --brk-win-text:     #4ade80;
+  --brk-gold:         #f59e0b;
+  --brk-gold-border:  rgba(245, 158, 11, 0.50);
+  --brk-radius:       8px;
+  --brk-shadow:       0 2px 16px rgba(0, 0, 0, 0.55);
 }
 
-/* ── Outer wrapper — the dark panel ─────────────────────────── */
-.bracket-wrap {
-  background: var(--bc-bg);
-  border-radius: 1.25rem;
-  border: 1px solid rgba(56, 189, 248, 0.12);
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
-  padding: 1.5rem 1.75rem 2rem;
-  overflow: hidden;
-}
-
-/* ── Scrollable horizontal container ────────────────────────── */
-.bracket-board {
+/* ── Outer wrapper: provides scroll, dark background ────────────── */
+.brk-outer {
+  background: var(--brk-bg);
+  border-radius: 12px;
+  border: 1px solid rgba(56, 189, 248, 0.08);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.45);
+  padding: 20px 20px 28px 20px;
   overflow-x: auto;
   overflow-y: visible;
-  padding-bottom: 0.5rem;
+  -webkit-overflow-scrolling: touch;
+  /* Counteract any overflow:hidden on parent .bracket-card */
+  /* min-width:0 prevents flex parents from squishing this */
+  min-width: 0;
+  /* Force the scrollable area to be at least as wide as its content */
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.bracket-board::-webkit-scrollbar {
-  height: 6px;
-}
-.bracket-board::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.04);
-  border-radius: 9999px;
-}
-.bracket-board::-webkit-scrollbar-thumb {
-  background: rgba(56, 189, 248, 0.25);
-  border-radius: 9999px;
-}
-.bracket-board::-webkit-scrollbar-thumb:hover {
-  background: rgba(56, 189, 248, 0.4);
-}
+.brk-outer::-webkit-scrollbar        { height: 5px; }
+.brk-outer::-webkit-scrollbar-track  { background: rgba(255,255,255,0.03); border-radius: 99px; }
+.brk-outer::-webkit-scrollbar-thumb  { background: rgba(56,189,248,0.28); border-radius: 99px; }
+.brk-outer::-webkit-scrollbar-thumb:hover { background: rgba(56,189,248,0.50); }
 
-/* ── Label row (round titles above cards) ────────────────────── */
-.bracket-labels {
+/* ── Label row ──────────────────────────────────────────────────── */
+.brk-label-row {
   display: flex;
-  align-items: center;
-  margin-bottom: 0.75rem;
-  min-width: max-content;
+  align-items: flex-end;
+  margin-bottom: 12px;
+  flex-shrink: 0;
 }
 
-.bracket-label-cell {
+.brk-col-label {
   flex-shrink: 0;
   text-align: center;
-  font-size: 0.78rem;
+  font-size: 11px;
   font-weight: 800;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--bc-text-secondary);
-  padding: 0 0 0.25rem;
+  color: var(--brk-text-dim);
+  padding-bottom: 4px;
+  /* width and marginRight set inline */
 }
 
-.bracket-label-cell--champion {
-  color: var(--bc-gold);
-  width: 200px;
+.brk-col-label--champ {
+  color: var(--brk-gold);
 }
 
-/* ── Main row that holds all columns ─────────────────────────── */
-.bracket-row {
-  display: flex;
-  align-items: flex-start;
-  position: relative;
-  min-width: max-content;
-}
-
-/* ── Group: one round column + its connector ─────────────────── */
-.bracket-col-group {
-  display: flex;
-  align-items: flex-start;
-  flex-shrink: 0;
-}
-
-/* ── Round column (relative so slots can be absolute) ────────── */
-.bracket-round-col {
+/* ── Canvas: fixed pixel size, relative so children can absolute ── */
+.brk-canvas {
   position: relative;
   flex-shrink: 0;
+  overflow: visible;
+  /* width and height set inline from JS */
 }
 
-/* ── Individual match slot (absolutely positioned) ───────────── */
-.bracket-slot {
+/* ── Round column ───────────────────────────────────────────────── */
+.brk-round-col {
+  position: absolute;
+  /* left, top, width, height set inline */
+}
+
+/* ── Connector column ───────────────────────────────────────────── */
+.brk-connector-col {
+  position: absolute;
+  /* left, top, width, height set inline */
+}
+
+/* ── Match slot inside a round column ──────────────────────────── */
+.brk-match-slot {
   position: absolute;
   left: 0;
+  width: 240px;
+  /* height is intentionally NOT set here — the card inside determines
+     its own height via min-height. The slot just anchors the top edge. */
 }
 
-/* ── The final-round → champion connector column ─────────────── */
-.bracket-final-line {
-  flex-shrink: 0;
-  position: relative;
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   MATCH CARD   (.bm-*)
-   Fixed 260×120px — never resizes
-   ═══════════════════════════════════════════════════════════════ */
-.bm-card {
-  width: 260px;
-  height: 120px;
-  background: var(--bc-surface);
-  border: 1px solid var(--bc-border);
-  border-radius: var(--bc-radius);
-  box-shadow: var(--bc-shadow), var(--bc-glow);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: 0.6rem 0.75rem;
-  transition: border-color 0.2s, box-shadow 0.2s;
-  overflow: hidden;
-}
-
-.bm-card:hover {
-  border-color: var(--bc-border-hover);
-  box-shadow: var(--bc-shadow), 0 0 20px rgba(56, 189, 248, 0.35);
-}
-
-/* Header */
-.bm-header {
+/* ── Champion column ────────────────────────────────────────────── */
+.brk-champ-col {
+  position: absolute;
+  top: 0;
+  /* left, width, height set inline */
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
 }
 
-.bm-number {
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: var(--bc-text-secondary);
-  letter-spacing: 0.04em;
-  white-space: nowrap;
-}
-
-/* Status badges */
-.bm-status {
-  padding: 0.18rem 0.55rem;
-  border-radius: 9999px;
-  font-size: 0.65rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-.bm-status--ready   { background: rgba(14,  165, 233, 0.18); color: #7dd3fc; }
-.bm-status--ongoing { background: rgba(34,  197,  94, 0.18); color: #4ade80; }
-.bm-status--finished{ background: rgba(129, 140, 248, 0.18); color: #c7d2fe; }
-.bm-status--pending { background: rgba(100, 116, 139, 0.18); color: #94a3b8; }
-
-/* Players section */
-.bm-players {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  flex: 1;
-  justify-content: center;
-}
-
-.bm-player {
-  display: flex;
-  align-items: center;
-  gap: 0.45rem;
-  padding: 0.3rem 0.5rem;
-  background: var(--bc-surface-2);
-  border-radius: 0.5rem;
-  border: 1px solid transparent;
-  transition: border-color 0.15s, background 0.15s;
-  min-width: 0;
-}
-
-.bm-player--winner {
-  background: var(--bc-winner-bg);
-  border-color: var(--bc-winner-border);
-}
-
-.bm-player-label {
-  font-size: 0.6rem;
-  font-weight: 800;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--bc-text-muted);
-  flex-shrink: 0;
-  width: 18px;
-}
-
-.bm-player--winner .bm-player-label {
-  color: var(--bc-winner-text);
-}
-
-.bm-player-name {
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: var(--bc-text-primary);
-  flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.bm-player--winner .bm-player-name {
-  color: var(--bc-winner-text);
-  font-weight: 800;
-}
-
-.bm-player-score {
-  font-size: 0.85rem;
-  font-weight: 800;
-  color: var(--bc-text-primary);
-  min-width: 1.25rem;
-  text-align: right;
-  flex-shrink: 0;
-}
-
-.bm-player--winner .bm-player-score {
-  color: var(--bc-winner-text);
-}
-
-/* Footer */
-.bm-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.4rem;
-  min-height: 22px;
-}
-
-.bm-winner {
-  font-size: 0.68rem;
-  font-weight: 700;
-  color: var(--bc-winner-text);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  flex: 1;
-}
-
-.bm-winner--empty {
-  color: var(--bc-text-muted);
-  font-weight: 500;
-}
-
-.bm-edit-btn {
-  flex-shrink: 0;
-  font-size: 0.7rem !important;
-  padding: 0.2rem 0.55rem !important;
-  background: rgba(56, 189, 248, 0.14) !important;
-  color: #7dd3fc !important;
-  border: 1px solid rgba(56, 189, 248, 0.3) !important;
-  border-radius: 0.5rem !important;
-  transition: background 0.15s, border-color 0.15s;
-}
-.bm-edit-btn:hover:not(:disabled) {
-  background: rgba(56, 189, 248, 0.28) !important;
-  border-color: rgba(56, 189, 248, 0.6) !important;
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   SVG CONNECTOR   (.bc-svg)
-   ═══════════════════════════════════════════════════════════════ */
-.bc-svg {
-  flex-shrink: 0;
-  display: block;
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   CHAMPION CARD   (.bch-*)
-   ═══════════════════════════════════════════════════════════════ */
-.bch-col {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  width: 200px;
-}
-
-.bch-card {
-  width: 190px;
-  padding: 1.25rem 1rem;
-  background: linear-gradient(160deg, rgba(245, 158, 11, 0.16) 0%, rgba(251, 191, 36, 0.08) 100%);
-  border: 2px solid var(--bc-gold-border);
-  border-radius: 1.25rem;
-  box-shadow:
-    0 0 40px rgba(245, 158, 11, 0.2),
-    0 16px 40px rgba(0, 0, 0, 0.5);
+.brk-champ-card {
+  position: absolute;
+  /* top set inline (centered) */
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
-  gap: 0.5rem;
+  gap: 8px;
+  padding: 20px 12px;
+  background: linear-gradient(160deg, rgba(245,158,11,0.14) 0%, rgba(251,191,36,0.06) 100%);
+  border: 2px solid var(--brk-gold-border);
+  border-radius: 14px;
+  box-shadow: 0 0 32px rgba(245,158,11,0.18), 0 8px 32px rgba(0,0,0,0.55);
+  box-sizing: border-box;
 }
 
-.bch-trophy {
-  font-size: 2.2rem;
+.brk-champ__trophy {
+  font-size: 32px;
   line-height: 1;
-  filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.6));
+  filter: drop-shadow(0 0 8px rgba(245,158,11,0.65));
 }
 
-.bch-badge {
-  font-size: 0.7rem;
+.brk-champ__badge {
+  font-size: 9px;
   font-weight: 800;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.20em;
   text-transform: uppercase;
-  color: var(--bc-gold);
-  background: rgba(245, 158, 11, 0.15);
-  padding: 0.2rem 0.65rem;
-  border-radius: 9999px;
-  border: 1px solid rgba(245, 158, 11, 0.35);
+  color: var(--brk-gold);
+  background: rgba(245,158,11,0.14);
+  padding: 3px 10px;
+  border-radius: 99px;
+  border: 1px solid rgba(245,158,11,0.28);
 }
 
-.bch-name {
-  font-size: 1.05rem;
+.brk-champ__name {
+  font-size: 15px;
   font-weight: 800;
   color: #fef3c7;
   max-width: 160px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  text-shadow: 0 0 12px rgba(245, 158, 11, 0.5);
+  text-shadow: 0 0 12px rgba(245,158,11,0.50);
 }
 
-.bch-sub {
-  font-size: 0.72rem;
-  color: #d97706;
+.brk-champ__sub {
+  font-size: 10px;
+  color: #c97c10;
   font-weight: 600;
   letter-spacing: 0.06em;
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   RESPONSIVE
-   ═══════════════════════════════════════════════════════════════ */
+/* ════════════════════════════════════════════════════════════════════
+   MATCH CARD  (.brk-card)
+   Width is fixed at 240px.
+   Height is min-height — grows naturally with content.
+   NO overflow:hidden — nothing inside should ever be clipped.
+   ════════════════════════════════════════════════════════════════════ */
+.brk-card {
+  width: 240px;
+  min-width: 240px;
+  /* min-height instead of fixed height — card grows when footer is present */
+  min-height: 80px;
+  /* NO height: fixed  — removed intentionally */
+  /* NO overflow: hidden — removed intentionally */
 
-/* Tablet — tighter gap, slightly smaller cards */
-@media (max-width: 1100px) {
-  .bm-card {
-    width: 220px;
-  }
-  .bracket-slot {
-    width: 220px !important;
-  }
-  .bracket-round-col {
-    width: 220px !important;
-  }
-  .bracket-label-cell {
-    /* labels still centered over smaller cards */
-    font-size: 0.72rem;
-  }
+  background: var(--brk-card);
+  border: 1px solid var(--brk-border);
+  border-radius: var(--brk-radius);
+  box-shadow: var(--brk-shadow);
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  position: relative;
+  padding: 0;
+  margin: 0;
 }
 
-/* Mobile — switch to vertical stacked layout */
-@media (max-width: 720px) {
-  .bracket-wrap {
-    padding: 1rem;
-    border-radius: 0.75rem;
-  }
+.brk-card:hover {
+  border-color: var(--brk-border-hi);
+  box-shadow: var(--brk-shadow), 0 0 18px rgba(56,189,248,0.22);
+}
 
-  .bracket-board {
-    overflow-x: visible;
-  }
+/* Head: match number + status badge */
+.brk-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 8px 3px;
+  flex-shrink: 0;
+  background: rgba(0,0,0,0.15);
+}
 
-  .bracket-labels {
-    display: none;
-  }
+.brk-card__num {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--brk-text-muted);
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
 
-  /* Stack rounds vertically */
-  .bracket-row {
-    flex-direction: column;
-    height: auto !important;
-    gap: 1.5rem;
-  }
+/* Status pill */
+.brk-badge {
+  padding: 2px 7px;
+  border-radius: 99px;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  display: inline-block;
+}
+.brk-badge--ready    { background: rgba(14,165,233,0.18); color: #7dd3fc; }
+.brk-badge--ongoing  { background: rgba(34,197, 94,0.18); color: #4ade80; }
+.brk-badge--finished { background: rgba(129,140,248,0.18);color: #c7d2fe; }
+.brk-badge--pending  { background: rgba(71,85,105,0.25);  color: #5c7599; }
 
-  .bracket-col-group {
-    flex-direction: column;
-    width: 100%;
-  }
+/* Players area */
+.brk-card__players {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  /* No padding here — players have their own */
+}
 
-  /* Round label above each mobile section */
-  .bracket-round-col {
-    position: static !important;
-    width: 100% !important;
-    height: auto !important;
-  }
+.brk-card__player {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  min-width: 0;
+  transition: background 0.1s;
+}
 
-  /* Cards in normal flow on mobile */
-  .bracket-slot {
-    position: static !important;
-    width: 100% !important;
-    height: auto !important;
-    margin-bottom: 0.75rem;
-  }
+.brk-card__player--win {
+  background: var(--brk-win-bg);
+}
 
-  .bm-card {
-    width: 100%;
-    height: auto;
-    min-height: 120px;
-  }
+.brk-card__divider {
+  height: 1px;
+  background: rgba(56,189,248,0.08);
+  margin: 0 8px;
+  flex-shrink: 0;
+}
 
-  /* Hide SVG connectors on mobile */
-  .bc-svg,
-  .bracket-final-line {
-    display: none;
-  }
+.brk-card__side {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--brk-text-muted);
+  flex-shrink: 0;
+  width: 14px;
+}
+.brk-card__player--win .brk-card__side { color: var(--brk-win-text); }
 
-  /* Champion full width */
-  .bch-col {
-    width: 100%;
-    height: auto !important;
-  }
+.brk-card__name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--brk-text);
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.brk-card__player--win .brk-card__name {
+  color: var(--brk-win-text);
+  font-weight: 700;
+}
 
-  .bch-card {
-    width: 100%;
-  }
+.brk-card__score {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--brk-text);
+  min-width: 16px;
+  text-align: right;
+  flex-shrink: 0;
+}
+.brk-card__player--win .brk-card__score { color: var(--brk-win-text); }
 
-  /* Mobile round headers */
-  .bracket-col-group::before {
-    content: attr(data-label);
-    display: block;
-    font-size: 0.75rem;
-    font-weight: 800;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: var(--bc-text-secondary);
-    margin-bottom: 0.75rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid rgba(56, 189, 248, 0.12);
-  }
+/* Footer: winner + edit button */
+.brk-card__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  padding: 3px 8px 5px;
+  background: rgba(0,0,0,0.12);
+  flex-shrink: 0;
+}
+
+.brk-card__winner {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--brk-win-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.brk-card__edit-btn {
+  flex-shrink: 0;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  background: rgba(56,189,248,0.14);
+  color: #7dd3fc;
+  border: 1px solid rgba(56,189,248,0.30);
+  border-radius: 5px;
+  cursor: pointer;
+  line-height: 1.5;
+  transition: background 0.12s, border-color 0.12s;
+  /* Reset button defaults */
+  font-family: inherit;
+  outline: none;
+}
+.brk-card__edit-btn:hover {
+  background: rgba(56,189,248,0.26);
+  border-color: rgba(56,189,248,0.55);
+}
+.brk-card__edit-btn:active {
+  background: rgba(56,189,248,0.38);
 }
