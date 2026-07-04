@@ -10,4 +10,6 @@ import java.util.List;
 public interface ParticipantRepository extends JpaRepository<Participant, Long> {
 
     List<Participant> findAllByOrderByNameAsc();
+
+    boolean existsByName(String name);
 }

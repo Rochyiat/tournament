@@ -6,6 +6,7 @@ C:\tournament\backend\src\main\java\com\example\tournament\exception\ConflictExc
 C:\tournament\backend\src\main\java\com\example\tournament\config\DatabaseSeeder.java
 C:\tournament\backend\src\main\java\com\example\tournament\repository\MatchRepository.java
 C:\tournament\backend\src\main\java\com\example\tournament\entity\Match.java
+C:\tournament\backend\src\main\java\com\example\tournament\config\ParticipantSeeder.java
 C:\tournament\backend\src\main\java\com\example\tournament\dto\response\TournamentResponse.java
 C:\tournament\backend\src\main\java\com\example\tournament\repository\ParticipantRepository.java
 C:\tournament\backend\src\main\java\com\example\tournament\dto\request\UpdateMatchScoreRequest.java
