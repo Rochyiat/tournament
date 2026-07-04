@@ -44,8 +44,26 @@ public class SecurityConfig {
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
             .authorizeHttpRequests(auth -> auth
+                // ── Always public ────────────────────────────────────────
                 .requestMatchers("/api/health").permitAll()
                 .requestMatchers("/api/auth/**").permitAll()
+
+                // ── Public read-only access for the Nakata Arena website ──
+                // Anonymous users may issue GET requests to browse
+                // tournaments, participants, matches, and brackets.
+                // All write operations (POST/PUT/PATCH/DELETE) remain
+                // protected by the anyRequest().authenticated() rule below.
+                .requestMatchers(org.springframework.http.HttpMethod.GET,
+                    "/api/tournaments",
+                    "/api/tournaments/*",
+                    "/api/tournaments/*/participants",
+                    "/api/tournaments/*/matches",
+                    "/api/tournaments/*/bracket",
+                    "/api/participants",
+                    "/api/participants/*"
+                ).permitAll()
+
+                // ── Everything else requires authentication ───────────────
                 .anyRequest().authenticated()
             )
             .authenticationProvider(authenticationProvider())

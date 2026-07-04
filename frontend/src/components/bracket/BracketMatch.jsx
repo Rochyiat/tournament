@@ -8,7 +8,7 @@
  *  - match       : object  Match data from the bracket API
  *  - onEditScore : fn      Called with the match when Edit is clicked
  */
-function BracketMatch({ match, onEditScore }) {
+function BracketMatch({ match, onEditScore, readOnly = false }) {
   const p1 = match.participant1Name || 'TBD'
   const p2 = match.participant2Name || (match.participant1Name ? 'BYE' : 'TBD')
 
@@ -65,7 +65,7 @@ function BracketMatch({ match, onEditScore }) {
           ) : (
             <span className="brk-card__winner brk-card__winner--empty" />
           )}
-          {canEdit && (
+          {canEdit && !readOnly && (
             <button
               type="button"
               className="brk-card__edit-btn"

@@ -241,7 +241,7 @@ function ChampionConnectorSVG({ finalRoundIndex, canvasHeight }) {
 
 // ─── Main Bracket component ───────────────────────────────────────────────────
 
-function Bracket({ bracket, onEditScore, roundLabelFn }) {
+function Bracket({ bracket, onEditScore, roundLabelFn, readOnly = false }) {
   if (!bracket || !bracket.rounds) return null
 
   const totalRounds = bracket.totalRounds || 0
@@ -322,7 +322,7 @@ function Bracket({ bracket, onEditScore, roundLabelFn }) {
                       /* no height — card uses min-height and grows with content */
                     }}
                   >
-                    <BracketMatch match={match} onEditScore={onEditScore} />
+                    <BracketMatch match={match} onEditScore={onEditScore} readOnly={readOnly} />
                   </div>
                 ))}
               </div>

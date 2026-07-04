@@ -1,0 +1,268 @@
+/* ── Public Tournament Detail ────────────────────────────────────── */
+
+/* ── Banner ──────────────────────────────────────────────────────── */
+.ptd-banner {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  margin-bottom: 1.25rem;
+  overflow: hidden;
+}
+.ptd-banner-stripe {
+  height: 4px;
+  background: linear-gradient(90deg, var(--game-color, var(--primary)), transparent);
+}
+.ptd-banner-body {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  padding: 1.5rem 1.75rem;
+}
+.ptd-banner-left {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  min-width: 0;
+}
+.ptd-banner-icon {
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius);
+  background: var(--primary-dim);
+  border: 1px solid rgba(0,200,255,0.20);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--game-color, var(--primary));
+}
+.ptd-banner-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin-bottom: 0.4rem;
+}
+.ptd-banner-game {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+.ptd-banner-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: 0.03em;
+  line-height: 1.2;
+  margin: 0 0 0.25rem;
+}
+.ptd-banner-host {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+.ptd-banner-host strong { color: var(--primary); }
+
+/* Champion badge */
+.ptd-champion-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1.25rem;
+  background: linear-gradient(135deg, rgba(245,158,11,0.14) 0%, rgba(251,191,36,0.06) 100%);
+  border: 1px solid rgba(245,158,11,0.35);
+  border-radius: var(--radius);
+  color: #f59e0b;
+  flex-shrink: 0;
+}
+.ptd-champion-badge svg { filter: drop-shadow(0 0 6px rgba(245,158,11,0.6)); }
+.ptd-champion-label {
+  display: block;
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: #f59e0b;
+  opacity: 0.75;
+}
+.ptd-champion-name {
+  display: block;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #fef3c7;
+}
+
+/* ── Two-column layout ───────────────────────────────────────────── */
+.ptd-two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+/* ── Info grid ───────────────────────────────────────────────────── */
+.ptd-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 0.75rem;
+}
+.ptd-info-field {
+  background: var(--bg-elevated, #1a2840);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.85rem 1rem;
+}
+.ptd-info-field dt {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 0.35rem;
+  font-family: 'Rajdhani', sans-serif;
+}
+.ptd-info-field dt svg { color: var(--primary); flex-shrink: 0; }
+.ptd-info-field dd {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text);
+}
+.ptd-description {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+.ptd-description p {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  margin: 0;
+}
+
+/* ── Stat grid ───────────────────────────────────────────────────── */
+.ptd-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+}
+.ptd-stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 1rem 0.5rem;
+  background: var(--bg-elevated, #1a2840);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  text-align: center;
+}
+.ptd-stat-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ptd-stat-icon--blue  { background: rgba(0,200,255,0.12);  border: 1px solid rgba(0,200,255,0.22);  color: var(--primary); }
+.ptd-stat-icon--cyan  { background: rgba(34,211,238,0.12); border: 1px solid rgba(34,211,238,0.22); color: #22d3ee; }
+.ptd-stat-icon--amber { background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.22); color: #f59e0b; }
+.ptd-stat-icon--green { background: rgba(45,211,111,0.12); border: 1px solid rgba(45,211,111,0.22); color: var(--success); }
+.ptd-stat-value {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1;
+}
+.ptd-stat-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.10em;
+  color: var(--text-muted);
+  font-family: 'Rajdhani', sans-serif;
+}
+
+/* ── Participant count badge ─────────────────────────────────────── */
+.ptd-participant-count {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+/* ── Participant table ───────────────────────────────────────────── */
+.ptd-participant-table-wrap {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.ptd-participant-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.ptd-participant-table th {
+  background: rgba(0,0,0,0.20);
+  padding: 0.7rem 1rem;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+.ptd-participant-table td {
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text);
+  border-bottom: 1px solid var(--border);
+}
+.ptd-participant-table tbody tr:last-child td { border-bottom: none; }
+.ptd-participant-table tbody tr:hover td { background: rgba(0,200,255,0.04); }
+.ptd-participant-num {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  width: 40px;
+}
+
+/* Bracket empty */
+.ptd-bracket-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 3rem 2rem;
+  text-align: center;
+  color: var(--text-muted);
+}
+.ptd-bracket-empty p { margin: 0; font-size: 0.9rem; }
+.ptd-empty-hint { font-size: 0.82rem; color: var(--text-muted); margin: 0; }
+
+/* ── Responsive ─────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .ptd-two-col { grid-template-columns: 1fr; }
+  .ptd-stat-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 600px) {
+  .ptd-banner-title { font-size: 1.1rem; }
+  .ptd-banner-left { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+  .ptd-info-grid { grid-template-columns: 1fr; }
+  .ptd-stat-grid { grid-template-columns: repeat(2, 1fr); }
+}
