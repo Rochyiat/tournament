@@ -1,0 +1,127 @@
+/* ═══════════════════════════════════════════════════════════════
+   SeedingDialog.css — seeding method picker modal
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Dialog box overrides */
+.sd-box {
+  max-width: 500px;
+  width: 100%;
+}
+
+/* Subtitle below header */
+.sd-subtitle {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  margin: 0 0 1.1rem;
+}
+
+/* ── Option card ─────────────────────────────────────────────── */
+.sd-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.9rem;
+  padding: 1rem 1.1rem;
+  border-radius: var(--radius);
+  border: 1.5px solid var(--border);
+  background: rgba(0,0,0,0.15);
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+  margin-bottom: 0.75rem;
+  user-select: none;
+}
+.sd-option:last-of-type { margin-bottom: 0; }
+.sd-option:hover {
+  border-color: var(--border-light);
+  background: rgba(0,200,255,0.04);
+}
+
+.sd-option--active {
+  border-color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 7%, transparent);
+  box-shadow: 0 0 0 1px rgba(0,200,255,0.20), inset 0 0 20px rgba(0,200,255,0.03);
+}
+.sd-option--active:hover {
+  background: color-mix(in srgb, var(--primary) 10%, transparent);
+}
+
+.sd-option--custom.sd-option--active {
+  border-color: #a78bfa;
+  background: color-mix(in srgb, #a78bfa 7%, transparent);
+  box-shadow: 0 0 0 1px rgba(167,139,250,0.25), inset 0 0 20px rgba(167,139,250,0.03);
+}
+
+/* ── Radio dot ───────────────────────────────────────────────── */
+.sd-option-radio {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border-light);
+  background: rgba(10,17,30,0.7);
+  margin-top: 1px;
+  transition: border-color 0.15s;
+}
+.sd-option--active .sd-option-radio {
+  border-color: var(--primary);
+}
+.sd-option--custom.sd-option--active .sd-option-radio {
+  border-color: #a78bfa;
+}
+
+.sd-radio-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: transparent;
+  transition: background 0.15s;
+}
+.sd-radio-dot--on {
+  background: var(--primary);
+}
+.sd-radio-dot--custom {
+  background: #a78bfa;
+}
+
+/* ── Option icon ─────────────────────────────────────────────── */
+.sd-option-icon {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.sd-option-icon--random {
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
+  border: 1px solid rgba(0,200,255,0.20);
+  color: var(--primary);
+}
+.sd-option-icon--custom {
+  background: color-mix(in srgb, #a78bfa 12%, transparent);
+  border: 1px solid rgba(167,139,250,0.20);
+  color: #a78bfa;
+}
+
+/* ── Option text ─────────────────────────────────────────────── */
+.sd-option-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  flex: 1;
+}
+.sd-option-title {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: 0.03em;
+}
+.sd-option-desc {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}

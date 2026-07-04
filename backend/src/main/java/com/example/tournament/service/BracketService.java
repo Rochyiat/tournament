@@ -1,5 +1,6 @@
 package com.example.tournament.service;
 
+import com.example.tournament.dto.request.GenerateBracketRequest;
 import com.example.tournament.dto.response.BracketResponse;
 import com.example.tournament.dto.response.MatchResponse;
 import com.example.tournament.entity.Match;
@@ -22,6 +23,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -46,8 +48,24 @@ public class BracketService {
 
     // ─── GENERATE BRACKET ────────────────────────────────────────────────────
 
+    /**
+     * Backward-compatible entry point: no request body → random seeding.
+     * Kept so any existing callers that don't pass a body still compile.
+     */
     @Transactional
     public void generateBracket(Long tournamentId) {
+        generateBracket(tournamentId, null);
+    }
+
+    /**
+     * Main generate-bracket logic.
+     *
+     * seedingType logic:
+     *   null / absent / "RANDOM"  → shuffle randomly (original behaviour, unchanged)
+     *   "CUSTOM" + participantIds → use the caller-supplied order directly
+     */
+    @Transactional
+    public void generateBracket(Long tournamentId, GenerateBracketRequest request) {
         Tournament tournament = findTournamentOrThrow(tournamentId);
 
         // Only owner or admin can generate a bracket
@@ -75,24 +93,38 @@ public class BracketService {
                     + ", Required: " + tournament.getMaxParticipants());
         }
 
-        // Shuffle participants randomly
-        List<TournamentParticipant> shuffled = shuffleParticipants(registrations);
+        // ── Determine seeding mode ────────────────────────────────────────────
+        boolean isCustom = request != null
+                && "CUSTOM".equalsIgnoreCase(request.getSeedingType())
+                && request.getParticipantIds() != null
+                && !request.getParticipantIds().isEmpty();
+
+        String resolvedSeedingType = isCustom ? "CUSTOM" : "RANDOM";
+
+        List<TournamentParticipant> ordered;
+        if (isCustom) {
+            ordered = orderParticipantsByIds(registrations, request.getParticipantIds());
+        } else {
+            // Original random shuffle — algorithm unchanged
+            ordered = shuffleParticipants(registrations);
+        }
 
         // Calculate total rounds for the smallest full bracket that fits all participants.
         int totalRounds = calculateRounds(participantCount);
 
         // Generate all rounds as unsaved Match objects, then link nextMatch
-        List<Match> allMatches = buildAllMatches(tournament, shuffled, totalRounds);
+        List<Match> allMatches = buildAllMatches(tournament, ordered, totalRounds);
 
         // Persist in order: later rounds first so nextMatch FK references are valid
         matchRepository.saveAll(allMatches);
 
-        // Update tournament status to ONGOING
+        // Record seeding type and update tournament status to ONGOING
+        tournament.setSeedingType(resolvedSeedingType);
         tournament.setStatus(TournamentStatus.ONGOING);
         tournamentRepository.save(tournament);
 
-        logger.info("Bracket generated: tournamentId={}, participants={}, rounds={}, matches={}",
-                tournamentId, participantCount, totalRounds, allMatches.size());
+        logger.info("Bracket generated: tournamentId={}, participants={}, rounds={}, matches={}, seedingType={}",
+                tournamentId, participantCount, totalRounds, allMatches.size(), resolvedSeedingType);
     }
 
     // ─── GET BRACKET ─────────────────────────────────────────────────────────
@@ -126,14 +158,48 @@ public class BracketService {
                 tournament.getStatus(),
                 totalRounds,
                 totalMatches,
+                tournament.getSeedingType(),   // may be null for old brackets → frontend treats as RANDOM
                 rounds
         );
+    }
+
+    // ─── CUSTOM SEEDING HELPER ────────────────────────────────────────────────
+
+    /**
+     * Re-order registrations according to the organizer-supplied participantId order.
+     * Any IDs in the request that don't belong to this tournament are silently ignored.
+     * Any registered participants NOT in the ID list are appended at the end
+     * (safety net — should not happen in normal usage).
+     */
+    private List<TournamentParticipant> orderParticipantsByIds(
+            List<TournamentParticipant> registrations,
+            List<Long> orderedIds) {
+
+        // Build a map: participantId (the Participant entity id) → TournamentParticipant
+        Map<Long, TournamentParticipant> byParticipantId = registrations.stream()
+                .collect(Collectors.toMap(
+                        tp -> tp.getParticipant().getId(),
+                        Function.identity(),
+                        (a, b) -> a   // deduplicate just in case
+                ));
+
+        List<TournamentParticipant> result = new ArrayList<>();
+        for (Long pid : orderedIds) {
+            TournamentParticipant tp = byParticipantId.remove(pid);
+            if (tp != null) result.add(tp);
+        }
+
+        // Append any remaining registrations not covered by the supplied IDs
+        result.addAll(byParticipantId.values());
+
+        return result;
     }
 
     // ─── ALGORITHM ────────────────────────────────────────────────────────────
 
     /**
      * Shuffle participants randomly for fair bracket seeding.
+     * This method is UNCHANGED from the original implementation.
      */
     List<TournamentParticipant> shuffleParticipants(List<TournamentParticipant> participants) {
         List<TournamentParticipant> shuffled = new ArrayList<>(participants);
@@ -161,13 +227,13 @@ public class BracketService {
      *
      * Strategy:
      * 1. Build placeholder matches for all rounds (saved in a 2D list indexed by [round][matchIndex])
-     * 2. Fill Round 1 with shuffled participants and apply byes when needed
+     * 2. Fill Round 1 with ordered participants and apply byes when needed
      * 3. Advance bye winners into later rounds before persisting
      * 4. Link each Round N match's nextMatch → the corresponding Round N+1 match
      * 5. Flatten to a single list in round order for batch save
      */
     private List<Match> buildAllMatches(Tournament tournament,
-                                        List<TournamentParticipant> shuffled,
+                                        List<TournamentParticipant> ordered,
                                         int totalRounds) {
         // allRounds[i] = list of matches for round (i+1)
         List<List<Match>> allRounds = new ArrayList<>();
@@ -183,7 +249,7 @@ public class BracketService {
 
         // Fill Round 1 with participants and byes.
         List<Match> round1 = allRounds.get(0);
-        int remainingParticipants = shuffled.size();
+        int remainingParticipants = ordered.size();
         int participantIndex = 0;
         for (int i = 0; i < round1.size(); i++) {
             Match current = round1.get(i);
@@ -191,14 +257,14 @@ public class BracketService {
             boolean assignBye = remainingParticipants <= remainingMatches;
 
             if (assignBye) {
-                current.setParticipant1(shuffled.get(participantIndex++));
+                current.setParticipant1(ordered.get(participantIndex++));
                 current.setParticipant2(null);
                 current.setWinner(current.getParticipant1());
                 current.setStatus(MatchStatus.FINISHED);
                 remainingParticipants -= 1;
             } else {
-                current.setParticipant1(shuffled.get(participantIndex++));
-                current.setParticipant2(shuffled.get(participantIndex++));
+                current.setParticipant1(ordered.get(participantIndex++));
+                current.setParticipant2(ordered.get(participantIndex++));
                 current.setStatus(MatchStatus.READY);
                 remainingParticipants -= 2;
             }
@@ -220,11 +286,11 @@ public class BracketService {
 
         // Flatten: save later rounds first so nextMatch foreign keys can be resolved.
         // Persist final round first, then work backwards.
-        List<Match> ordered = new ArrayList<>();
+        List<Match> result = new ArrayList<>();
         for (int r = totalRounds - 1; r >= 0; r--) {
-            ordered.addAll(allRounds.get(r));
+            result.addAll(allRounds.get(r));
         }
-        return ordered;
+        return result;
     }
 
     private void propagateByes(List<List<Match>> allRounds) {
@@ -273,13 +339,6 @@ public class BracketService {
                     .build());
         }
         return matches;
-    }
-
-    /**
-     * Check if n is a power of two.
-     */
-    private boolean isPowerOfTwo(int n) {
-        return n >= 2 && (n & (n - 1)) == 0;
     }
 
     // ─── HELPERS ──────────────────────────────────────────────────────────────

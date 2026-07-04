@@ -7,6 +7,8 @@ import LoadingSpinner from '../components/LoadingSpinner'
 import MatchScoreForm from '../components/MatchScoreForm'
 import TournamentBracket from '../components/TournamentBracket'
 import ParticipantManager from '../components/ParticipantManager'
+import SeedingDialog from '../components/SeedingDialog'
+import CustomSeedingModal from '../components/CustomSeedingModal'
 import NavBar from '../components/NavBar'
 import { useAuth } from '../context/AuthContext'
 import {
@@ -53,16 +55,16 @@ function TournamentDetail() {
   const [bracketError, setBracketError] = useState('')
   const [bracketMessage, setBracketMessage] = useState({ type: '', text: '' })
   const [generateLoading, setGenerateLoading] = useState(false)
+
+  // ── Seeding dialog state ──────────────────────────────────────────────────
+  const [showSeedingDialog, setShowSeedingDialog]   = useState(false)
+  const [showCustomModal,   setShowCustomModal]     = useState(false)
+
   const [scoreModalMatch, setScoreModalMatch] = useState(null)
   const [scoreLoading, setScoreLoading] = useState(false)
   const [scoreError, setScoreError] = useState('')
 
   // ── Ownership check ───────────────────────────────────────────────────────
-  //
-  // canEdit = true  when the logged-in user is:
-  //   (a) ADMIN — can manage any tournament, or
-  //   (b) the owner of this tournament
-  //
   const isAdmin = currentUser?.role === 'ADMIN'
   const isOwner =
     tournament !== null &&
@@ -113,7 +115,6 @@ function TournamentDetail() {
     }
   }
 
-  // canModifyRegistration requires BOTH: tournament is DRAFT and user has edit rights
   const canModifyRegistration = canEdit && tournament?.status === 'DRAFT'
 
   useEffect(() => {
@@ -147,9 +148,7 @@ function TournamentDetail() {
     try {
       const res = await tournamentApi.getById(id)
       setTournament(res.data.data)
-    } catch {
-      /* ignore */
-    }
+    } catch { /* ignore */ }
   }
 
   function getRoundLabel(roundNumber, totalRounds) {
@@ -159,13 +158,13 @@ function TournamentDetail() {
     return `Round ${roundNumber}`
   }
 
-  async function handleGenerateBracket() {
-    if (!tournament || !canEdit) return
+  // ── Generate bracket: shared finisher ────────────────────────────────────
+  async function doGenerate(body) {
     setGenerateLoading(true)
     setBracketMessage({ type: '', text: '' })
     setBracketError('')
     try {
-      await tournamentApi.generateBracket(id)
+      await tournamentApi.generateBracket(id, body)
       setBracketMessage({ type: 'success', text: 'Bracket generated successfully.' })
       await refreshTournament()
       await fetchBracket()
@@ -177,6 +176,30 @@ function TournamentDetail() {
     } finally {
       setGenerateLoading(false)
     }
+  }
+
+  // ── "Generate Bracket" button click → open seeding picker ────────────────
+  function handleGenerateClick() {
+    if (!tournament || !canEdit) return
+    setShowSeedingDialog(true)
+  }
+
+  // ── SeedingDialog: Random chosen ─────────────────────────────────────────
+  async function handleSeedingRandom() {
+    setShowSeedingDialog(false)
+    await doGenerate({ seedingType: 'RANDOM' })
+  }
+
+  // ── SeedingDialog: Custom chosen → open CustomSeedingModal ───────────────
+  function handleSeedingCustom() {
+    setShowSeedingDialog(false)
+    setShowCustomModal(true)
+  }
+
+  // ── CustomSeedingModal: generate with ordered IDs ─────────────────────────
+  async function handleCustomGenerate(orderedIds) {
+    setShowCustomModal(false)
+    await doGenerate({ seedingType: 'CUSTOM', participantIds: orderedIds })
   }
 
   async function handleScoreSubmit(scores) {
@@ -195,30 +218,19 @@ function TournamentDetail() {
     }
   }
 
-  /**
-   * handleSave — called by ParticipantManager after the user confirms.
-   * Executes all staged add/remove API calls sequentially, then refreshes.
-   *
-   * @param {number[]} toAdd    participant IDs to register
-   * @param {number[]} toRemove participant IDs to unregister
-   */
   async function handleSave(toAdd, toRemove) {
     setRegistrationError('')
     try {
-      // Register new participants
       for (const participantId of toAdd) {
         await tournamentApi.registerParticipant(id, { participantId })
       }
-      // Unregister removed participants
       for (const participantId of toRemove) {
         await tournamentApi.unregisterParticipant(id, participantId)
       }
-      // Refresh tournament status (may transition DRAFT→READY or READY→DRAFT)
       await refreshTournament()
       await loadParticipants()
     } catch (err) {
       setRegistrationError(err.response?.data?.message || 'Failed to save participant changes.')
-      // Re-throw so ParticipantManager knows the save failed and can keep the dialog open
       throw err
     }
   }
@@ -230,6 +242,12 @@ function TournamentDetail() {
     : 0
   const championName =
     bracket?.rounds?.[bracket?.totalRounds]?.[0]?.winnerName || ''
+
+  // Participants formatted for CustomSeedingModal: { id, name }
+  const seedingParticipants = registeredParticipants.map((tp) => ({
+    id: tp.participantId,
+    name: tp.participantName,
+  }))
 
   return (
     <div>
@@ -437,7 +455,6 @@ function TournamentDetail() {
                 )}
 
                 {canModifyRegistration ? (
-                  /* ── Multi-select manager (DRAFT + owner/admin) ── */
                   <ParticipantManager
                     availableParticipants={availableParticipants}
                     registeredParticipants={registeredParticipants}
@@ -447,7 +464,6 @@ function TournamentDetail() {
                     error={null}
                   />
                 ) : (
-                  /* ── Read-only registered list (non-owner, or non-DRAFT status) ── */
                   participantsLoading ? (
                     <LoadingSpinner message="Loading participants…" />
                   ) : registeredParticipants.length === 0 ? (
@@ -480,11 +496,10 @@ function TournamentDetail() {
             <div className="section-card">
               <div className="section-card-header">
                 <h3><GitBranch size={15} /> Bracket</h3>
-                {/* Generate bracket — only for owner/admin when status is READY */}
                 {canEdit && tournament.status === 'READY' && (
                   <button
                     className="btn btn-primary btn-sm"
-                    onClick={handleGenerateBracket}
+                    onClick={handleGenerateClick}
                     disabled={generateLoading}
                   >
                     <Zap size={13} strokeWidth={2} />
@@ -514,7 +529,6 @@ function TournamentDetail() {
                 ) : bracket ? (
                   <TournamentBracket
                     bracket={bracket}
-                    /* Pass score edit handler only to owner/admin; others get read-only */
                     onEditScore={canEdit ? setScoreModalMatch : null}
                     roundLabelFn={getRoundLabel}
                     readOnly={!canEdit}
@@ -537,7 +551,25 @@ function TournamentDetail() {
         )}
       </div>
 
-      {/* Score modal — only reachable by owner/admin since onEditScore is null otherwise */}
+      {/* ── Seeding method picker dialog ── */}
+      {showSeedingDialog && (
+        <SeedingDialog
+          onSelectRandom={handleSeedingRandom}
+          onSelectCustom={handleSeedingCustom}
+          onCancel={() => setShowSeedingDialog(false)}
+        />
+      )}
+
+      {/* ── Custom seeding full-screen modal ── */}
+      {showCustomModal && (
+        <CustomSeedingModal
+          participants={seedingParticipants}
+          onGenerate={handleCustomGenerate}
+          onCancel={() => setShowCustomModal(false)}
+        />
+      )}
+
+      {/* ── Score modal ── */}
       {scoreModalMatch && canEdit && (
         <MatchScoreForm
           match={scoreModalMatch}

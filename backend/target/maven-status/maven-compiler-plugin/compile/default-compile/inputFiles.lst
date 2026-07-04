@@ -12,6 +12,7 @@ C:\tournament\backend\src\main\java\com\example\tournament\repository\Participan
 C:\tournament\backend\src\main\java\com\example\tournament\dto\request\UpdateMatchScoreRequest.java
 C:\tournament\backend\src\main\java\com\example\tournament\enums\TournamentStatus.java
 C:\tournament\backend\src\main\java\com\example\tournament\util\JwtService.java
+C:\tournament\backend\src\main\java\com\example\tournament\dto\request\GenerateBracketRequest.java
 C:\tournament\backend\src\main\java\com\example\tournament\config\SecurityConfig.java
 C:\tournament\backend\src\main\java\com\example\tournament\controller\HealthController.java
 C:\tournament\backend\src\main\java\com\example\tournament\controller\BracketController.java

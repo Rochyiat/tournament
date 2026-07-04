@@ -49,6 +49,13 @@ public class Tournament {
     @Builder.Default
     private TournamentStatus status = TournamentStatus.DRAFT;
 
+    /**
+     * How the bracket was seeded: "RANDOM" or "CUSTOM".
+     * Null until a bracket is generated.
+     */
+    @Column(length = 20)
+    private String seedingType;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by", nullable = false)
     private User owner;

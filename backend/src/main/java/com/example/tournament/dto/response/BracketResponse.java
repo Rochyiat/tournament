@@ -20,6 +20,13 @@ public class BracketResponse {
     private int totalMatches;
 
     /**
+     * How participants were seeded.
+     * "RANDOM" (default) or "CUSTOM".
+     * May be null for brackets generated before this field was added.
+     */
+    private String seedingType;
+
+    /**
      * Matches grouped by round number.
      * Key = round number (1 = first round, totalRounds = final)
      * Value = list of matches in that round
