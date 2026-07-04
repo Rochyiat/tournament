@@ -173,3 +173,42 @@
   .navbar-link { padding: 0.45rem; }
   .navbar-logout-btn span { display: none; }
 }
+
+
+/* ── Logout confirmation dialog ──────────────────────────────── */
+.navbar-logout-confirm {
+  max-width: 360px;
+  text-align: center;
+  padding: 2rem 1.75rem 1.5rem;
+}
+
+.navbar-logout-confirm-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--danger) 30%, transparent);
+  color: var(--danger);
+  margin: 0 auto 1.1rem;
+}
+
+.navbar-logout-confirm h2 {
+  font-size: 1.15rem;
+  margin-bottom: 0.6rem;
+}
+
+.navbar-logout-confirm p {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.55;
+  margin-bottom: 0;
+}
+
+.navbar-logout-confirm .modal-footer {
+  justify-content: center;
+  margin-top: 1.5rem;
+  gap: 0.65rem;
+}
