@@ -28,13 +28,16 @@ public class TournamentRegistrationService {
     private final TournamentRepository tournamentRepository;
     private final ParticipantRepository participantRepository;
     private final TournamentParticipantRepository tournamentParticipantRepository;
+    private final AuthorizationService authorizationService;
 
     public TournamentRegistrationService(TournamentRepository tournamentRepository,
                                           ParticipantRepository participantRepository,
-                                          TournamentParticipantRepository tournamentParticipantRepository) {
+                                          TournamentParticipantRepository tournamentParticipantRepository,
+                                          AuthorizationService authorizationService) {
         this.tournamentRepository = tournamentRepository;
         this.participantRepository = participantRepository;
         this.tournamentParticipantRepository = tournamentParticipantRepository;
+        this.authorizationService = authorizationService;
     }
 
     // ─── REGISTER ─────────────────────────────────────────────────────────────
@@ -44,12 +47,14 @@ public class TournamentRegistrationService {
         Tournament tournament = findTournamentOrThrow(tournamentId);
         Participant participant = findParticipantOrThrow(request.getParticipantId());
 
-        // Business Rules
+        // Ownership check: only owner or admin can register participants
+        authorizationService.checkOwnerOrAdmin(tournament);
+
+        // Business rules
         checkTournamentIsDraft(tournament);
         checkNotAlreadyRegistered(tournamentId, request.getParticipantId());
         checkTournamentNotFull(tournament);
 
-        // Create registration
         TournamentParticipant registration = TournamentParticipant.builder()
                 .tournament(tournament)
                 .participant(participant)
@@ -57,7 +62,6 @@ public class TournamentRegistrationService {
 
         TournamentParticipant saved = tournamentParticipantRepository.save(registration);
 
-        // Update tournament status after registration
         updateTournamentStatus(tournament);
 
         logger.info("Participant registered: tournamentId={}, participantId={}", tournamentId, request.getParticipantId());
@@ -70,7 +74,10 @@ public class TournamentRegistrationService {
     @Transactional
     public void unregisterParticipant(Long tournamentId, Long participantId) {
         Tournament tournament = findTournamentOrThrow(tournamentId);
-        Participant participant = findParticipantOrThrow(participantId);
+        findParticipantOrThrow(participantId);
+
+        // Ownership check: only owner or admin can unregister participants
+        authorizationService.checkOwnerOrAdmin(tournament);
 
         checkTournamentIsDraft(tournament);
 
@@ -80,7 +87,6 @@ public class TournamentRegistrationService {
 
         tournamentParticipantRepository.deleteByTournamentIdAndParticipantId(tournamentId, participantId);
 
-        // Update tournament status after unregistration
         updateTournamentStatus(tournament);
 
         logger.info("Participant unregistered: tournamentId={}, participantId={}", tournamentId, participantId);
@@ -90,7 +96,7 @@ public class TournamentRegistrationService {
 
     @Transactional(readOnly = true)
     public List<TournamentParticipantResponse> getRegisteredParticipants(Long tournamentId) {
-        findTournamentOrThrow(tournamentId); // Verify tournament exists
+        findTournamentOrThrow(tournamentId);
 
         return tournamentParticipantRepository.findAllByTournamentId(tournamentId)
                 .stream()
@@ -102,7 +108,7 @@ public class TournamentRegistrationService {
 
     @Transactional(readOnly = true)
     public long countRegisteredParticipants(Long tournamentId) {
-        findTournamentOrThrow(tournamentId); // Verify tournament exists
+        findTournamentOrThrow(tournamentId);
         return tournamentParticipantRepository.countByTournamentId(tournamentId);
     }
 
@@ -140,12 +146,9 @@ public class TournamentRegistrationService {
     private void updateTournamentStatus(Tournament tournament) {
         long registeredCount = tournamentParticipantRepository.countByTournamentId(tournament.getId());
 
-        TournamentStatus newStatus;
-        if (registeredCount >= tournament.getMaxParticipants()) {
-            newStatus = TournamentStatus.READY;
-        } else {
-            newStatus = TournamentStatus.DRAFT;
-        }
+        TournamentStatus newStatus = registeredCount >= tournament.getMaxParticipants()
+                ? TournamentStatus.READY
+                : TournamentStatus.DRAFT;
 
         if (tournament.getStatus() != newStatus) {
             tournament.setStatus(newStatus);

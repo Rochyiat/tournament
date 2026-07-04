@@ -49,6 +49,7 @@ C:\tournament\backend\src\main\java\com\example\tournament\dto\request\CreatePar
 C:\tournament\backend\src\main\java\com\example\tournament\dto\request\RegisterRequest.java
 C:\tournament\backend\src\main\java\com\example\tournament\repository\TournamentParticipantRepository.java
 C:\tournament\backend\src\main\java\com\example\tournament\service\TournamentRegistrationService.java
+C:\tournament\backend\src\main\java\com\example\tournament\service\AuthorizationService.java
 C:\tournament\backend\src\main\java\com\example\tournament\controller\DashboardController.java
 C:\tournament\backend\src\main\java\com\example\tournament\dto\response\UserResponse.java
 C:\tournament\backend\src\main\java\com\example\tournament\service\BracketService.java

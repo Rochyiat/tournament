@@ -26,11 +26,14 @@ public class MatchService {
 
     private final MatchRepository matchRepository;
     private final TournamentRepository tournamentRepository;
+    private final AuthorizationService authorizationService;
 
     public MatchService(MatchRepository matchRepository,
-                         TournamentRepository tournamentRepository) {
+                         TournamentRepository tournamentRepository,
+                         AuthorizationService authorizationService) {
         this.matchRepository = matchRepository;
         this.tournamentRepository = tournamentRepository;
+        this.authorizationService = authorizationService;
     }
 
     // ─── GET MATCHES ──────────────────────────────────────────────────────────
@@ -58,6 +61,9 @@ public class MatchService {
     @Transactional
     public MatchResponse updateScore(Long matchId, UpdateMatchScoreRequest request) {
         Match match = findMatchOrThrow(matchId);
+
+        // Only owner or admin can submit scores
+        authorizationService.checkOwnerOrAdmin(match.getTournament());
 
         // Validate match is in READY state
         if (match.getStatus() != MatchStatus.READY) {

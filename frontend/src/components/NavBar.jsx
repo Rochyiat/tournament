@@ -29,11 +29,11 @@ function NavBar() {
   return (
     <nav className="navbar" role="navigation" aria-label="Main navigation">
       {/* Brand */}
-      <NavLink to="/dashboard" className="navbar-brand" aria-label="Go to dashboard">
+      <NavLink to="/" className="navbar-brand" aria-label="Go to home page">
         <div className="navbar-brand-icon">
           <Zap size={16} strokeWidth={2.5} />
         </div>
-        <span className="navbar-brand-text">ESPORT<span className="navbar-brand-accent">HUB</span></span>
+        <span className="navbar-brand-text">NAKATA<span className="navbar-brand-accent"> ARENA</span></span>
       </NavLink>
 
       {/* Nav links */}

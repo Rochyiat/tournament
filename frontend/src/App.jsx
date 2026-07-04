@@ -5,6 +5,7 @@ import LoadingSpinner from './components/LoadingSpinner'
 
 // Admin pages
 import LoginPage from './pages/LoginPage'
+import RegisterPage from './pages/RegisterPage'
 import Dashboard from './pages/Dashboard'
 import Tournament from './pages/Tournament'
 import TournamentDetail from './pages/TournamentDetail'
@@ -82,6 +83,7 @@ function AppRoutes() {
 
       {/* ─── Auth routes ────────────────────────────────────────────── */}
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<RegisterPage />} />
 
       {/* ─── Protected admin routes ─────────────────────────────────── */}
       <Route

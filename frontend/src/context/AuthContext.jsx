@@ -3,19 +3,31 @@ import api from '../api/axios'
 
 const AuthContext = createContext(null)
 
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+function persistSession(token, user) {
+  localStorage.setItem('token', token)
+  localStorage.setItem('user', JSON.stringify(user))
+  api.defaults.headers.common['Authorization'] = `Bearer ${token}`
+}
+
+function clearSession() {
+  localStorage.removeItem('token')
+  localStorage.removeItem('user')
+  delete api.defaults.headers.common['Authorization']
+}
+
+// ── Provider ──────────────────────────────────────────────────────────────────
+
 export function AuthProvider({ children }) {
   const [token, setToken] = useState(() => localStorage.getItem('token'))
   const [currentUser, setCurrentUser] = useState(() => {
     const stored = localStorage.getItem('user')
-    try {
-      return stored ? JSON.parse(stored) : null
-    } catch {
-      return null
-    }
+    try { return stored ? JSON.parse(stored) : null } catch { return null }
   })
   const [loading, setLoading] = useState(false)
 
-  // Sync token ke axios header jika ada saat mount
+  // Sync token into axios header on mount / token change
   useEffect(() => {
     if (token) {
       api.defaults.headers.common['Authorization'] = `Bearer ${token}`
@@ -24,20 +36,14 @@ export function AuthProvider({ children }) {
     }
   }, [token])
 
-  /**
-   * Login dengan username dan password.
-   * Menyimpan token dan user ke localStorage.
-   * Melempar error jika gagal sehingga LoginPage bisa menampilkan pesan.
-   */
+  // ── Login ────────────────────────────────────────────────────────────────
   const login = useCallback(async (username, password) => {
     setLoading(true)
     try {
       const response = await api.post('/auth/login', { username, password })
       const { token: newToken, user } = response.data.data
 
-      localStorage.setItem('token', newToken)
-      localStorage.setItem('user', JSON.stringify(user))
-
+      persistSession(newToken, user)
       setToken(newToken)
       setCurrentUser(user)
 
@@ -47,15 +53,28 @@ export function AuthProvider({ children }) {
     }
   }, [])
 
-  /**
-   * Logout — hapus token dan user dari state dan localStorage.
-   */
+  // ── Register ─────────────────────────────────────────────────────────────
+  const register = useCallback(async (username, email, password) => {
+    setLoading(true)
+    try {
+      const response = await api.post('/auth/register', { username, email, password })
+      const { token: newToken, user } = response.data.data
+
+      persistSession(newToken, user)
+      setToken(newToken)
+      setCurrentUser(user)
+
+      return user
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  // ── Logout ───────────────────────────────────────────────────────────────
   const logout = useCallback(() => {
-    localStorage.removeItem('token')
-    localStorage.removeItem('user')
+    clearSession()
     setToken(null)
     setCurrentUser(null)
-    delete api.defaults.headers.common['Authorization']
   }, [])
 
   const value = {
@@ -63,6 +82,7 @@ export function AuthProvider({ children }) {
     currentUser,
     loading,
     login,
+    register,
     logout,
     isAuthenticated: !!token,
   }

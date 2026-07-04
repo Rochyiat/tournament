@@ -7,6 +7,7 @@ import LoadingSpinner from '../components/LoadingSpinner'
 import MatchScoreForm from '../components/MatchScoreForm'
 import TournamentBracket from '../components/TournamentBracket'
 import NavBar from '../components/NavBar'
+import { useAuth } from '../context/AuthContext'
 import {
   ChevronRight,
   Trophy,
@@ -24,6 +25,7 @@ import {
   BarChart2,
   Hash,
   Swords,
+  UserCircle,
 } from 'lucide-react'
 import './TournamentDetail.css'
 
@@ -37,6 +39,7 @@ const STATUS_LABEL = {
 function TournamentDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const { currentUser } = useAuth()
 
   const [tournament, setTournament] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -57,6 +60,20 @@ function TournamentDetail() {
   const [scoreModalMatch, setScoreModalMatch] = useState(null)
   const [scoreLoading, setScoreLoading] = useState(false)
   const [scoreError, setScoreError] = useState('')
+
+  // ── Ownership check ───────────────────────────────────────────────────────
+  //
+  // canEdit = true  when the logged-in user is:
+  //   (a) ADMIN — can manage any tournament, or
+  //   (b) the owner of this tournament
+  //
+  // All write action buttons (Edit Score, Generate Bracket, Register, Remove,
+  // etc.) are gated behind this single flag.
+  const isAdmin   = currentUser?.role === 'ADMIN'
+  const isOwner   = tournament !== null &&
+                    (tournament.ownerId === currentUser?.id ||
+                     tournament.ownerUsername === currentUser?.username)
+  const canEdit   = isAdmin || isOwner
 
   useEffect(() => {
     async function fetchDetail() {
@@ -104,7 +121,8 @@ function TournamentDetail() {
     }
   }
 
-  const canModifyRegistration = tournament?.status === 'DRAFT'
+  // canModifyRegistration requires BOTH: tournament is DRAFT and user has edit rights
+  const canModifyRegistration = canEdit && tournament?.status === 'DRAFT'
 
   useEffect(() => { loadParticipants() }, [id, tournament])
 
@@ -146,7 +164,7 @@ function TournamentDetail() {
   }
 
   async function handleGenerateBracket() {
-    if (!tournament) return
+    if (!tournament || !canEdit) return
     setGenerateLoading(true)
     setBracketMessage({ type: '', text: '' })
     setBracketError('')
@@ -166,7 +184,7 @@ function TournamentDetail() {
   }
 
   async function handleScoreSubmit(scores) {
-    if (!scoreModalMatch) return
+    if (!scoreModalMatch || !canEdit) return
     setScoreLoading(true)
     setScoreError('')
     try {
@@ -183,7 +201,7 @@ function TournamentDetail() {
 
   async function handleRegister() {
     const participantId = Number(selectedParticipantId)
-    if (!participantId || !tournament) return
+    if (!participantId || !tournament || !canEdit) return
     setRegistrationLoading(true)
     setRegistrationError('')
     try {
@@ -299,9 +317,15 @@ function TournamentDetail() {
                       <dt><Shield size={13} /> Host</dt>
                       <dd>{tournament.host}</dd>
                     </div>
-                    <div className="td-info-field">
-                      <dt><UserCheck size={13} /> Created By</dt>
-                      <dd>{tournament.createdByUsername ?? '—'}</dd>
+                    <div className="td-info-field td-info-field--organizer">
+                      <dt><UserCircle size={13} /> Organizer</dt>
+                      <dd>
+                        <span className="td-organizer-name">{tournament.ownerUsername ?? '—'}</span>
+                        {canEdit
+                          ? <span className="td-organizer-badge td-organizer-badge--you">You are the organizer</span>
+                          : <span className="td-organizer-badge td-organizer-badge--view">View Only</span>
+                        }
+                      </dd>
                     </div>
                     <div className="td-info-field">
                       <dt><Users size={13} /> Capacity</dt>
@@ -382,7 +406,7 @@ function TournamentDetail() {
               <div className="section-card-body">
                 {registrationError && <div className="alert alert-error" role="alert">{registrationError}</div>}
 
-                {/* Register form */}
+                {/* Register form — only shown to owner / admin when DRAFT */}
                 {canModifyRegistration && (
                   <div className="td-register-row">
                     <select
@@ -392,7 +416,9 @@ function TournamentDetail() {
                       disabled={participantsLoading || availableParticipants.length === 0 || isFull}
                     >
                       <option value="">
-                        {availableParticipants.length === 0 ? 'No available participants' : 'Select participant to register…'}
+                        {availableParticipants.length === 0
+                          ? 'No available participants'
+                          : 'Select participant to register…'}
                       </option>
                       {availableParticipants.map((p) => (
                         <option key={p.id} value={p.id}>{p.name}</option>
@@ -421,6 +447,7 @@ function TournamentDetail() {
                         <tr>
                           <th>#</th>
                           <th>Name</th>
+                          {/* Remove column header only for owner/admin in DRAFT */}
                           {canModifyRegistration && <th style={{ width: '130px' }}>Actions</th>}
                         </tr>
                       </thead>
@@ -454,7 +481,8 @@ function TournamentDetail() {
             <div className="section-card">
               <div className="section-card-header">
                 <h3><GitBranch size={15} /> Bracket</h3>
-                {tournament.status === 'READY' && (
+                {/* Generate bracket — only for owner/admin when status is READY */}
+                {canEdit && tournament.status === 'READY' && (
                   <button
                     className="btn btn-primary btn-sm"
                     onClick={handleGenerateBracket}
@@ -467,7 +495,10 @@ function TournamentDetail() {
               </div>
               <div className="section-card-body">
                 {bracketMessage.text && (
-                  <div className={bracketMessage.type === 'success' ? 'alert alert-success' : 'alert alert-error'} role="alert">
+                  <div
+                    className={bracketMessage.type === 'success' ? 'alert alert-success' : 'alert alert-error'}
+                    role="alert"
+                  >
                     {bracketMessage.text}
                   </div>
                 )}
@@ -476,7 +507,13 @@ function TournamentDetail() {
                 {bracketLoading ? (
                   <LoadingSpinner message="Loading bracket…" />
                 ) : bracket ? (
-                  <TournamentBracket bracket={bracket} onEditScore={setScoreModalMatch} roundLabelFn={getRoundLabel} />
+                  <TournamentBracket
+                    bracket={bracket}
+                    /* Pass score edit handler only to owner/admin; others get read-only */
+                    onEditScore={canEdit ? setScoreModalMatch : null}
+                    roundLabelFn={getRoundLabel}
+                    readOnly={!canEdit}
+                  />
                 ) : (
                   <div className="td-bracket-empty">
                     <GitBranch size={32} strokeWidth={1} />
@@ -493,7 +530,8 @@ function TournamentDetail() {
         )}
       </div>
 
-      {scoreModalMatch && (
+      {/* Score modal — only reachable by owner/admin since onEditScore is null otherwise */}
+      {scoreModalMatch && canEdit && (
         <MatchScoreForm
           match={scoreModalMatch}
           onSubmit={handleScoreSubmit}

@@ -11,7 +11,7 @@ import java.util.List;
 @Repository
 public interface TournamentRepository extends JpaRepository<Tournament, Long> {
 
-    List<Tournament> findByCreatedBy(User createdBy);
+    List<Tournament> findByOwner(User owner);
 
     long countByStatus(TournamentStatus status);
 }

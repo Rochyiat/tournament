@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { useNavigate, useLocation, Navigate } from 'react-router-dom'
+import { useNavigate, useLocation, Navigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { ArrowLeft } from 'lucide-react'
 import './LoginPage.css'
 
 function LoginPage() {
@@ -60,9 +61,16 @@ function LoginPage() {
   return (
     <div className="login-container">
       <div className="login-card">
+
+        {/* ── Back to Home ── */}
+        <Link to="/" className="auth-back-link" aria-label="Back to home page">
+          <ArrowLeft size={14} strokeWidth={2.5} />
+          Back to Home
+        </Link>
+
         <div className="login-header">
-          <h1>Esport Tournament</h1>
-          <p>Sign in to your account</p>
+          <h1>Welcome Back</h1>
+          <p>Sign in to Nakata Arena</p>
         </div>
 
         <form onSubmit={handleSubmit} noValidate>
@@ -119,6 +127,11 @@ function LoginPage() {
             {loading ? 'Signing in…' : 'Sign In'}
           </button>
         </form>
+
+        <p className="login-register-link">
+          Don&apos;t have an account?{' '}
+          <Link to="/register">Create one</Link>
+        </p>
       </div>
     </div>
   )

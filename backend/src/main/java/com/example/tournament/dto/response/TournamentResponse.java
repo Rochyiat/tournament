@@ -15,8 +15,13 @@ public class TournamentResponse {
     private String host;
     private Integer maxParticipants;
     private TournamentStatus status;
-    private Long createdById;
-    private String createdByUsername;
+
+    /** ID of the user who owns this tournament. */
+    private Long ownerId;
+
+    /** Username of the user who owns this tournament. */
+    private String ownerUsername;
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

@@ -360,3 +360,43 @@
   .td-info-grid { grid-template-columns: 1fr; }
   .td-stat-grid { grid-template-columns: repeat(2, 1fr); }
 }
+
+
+/* ── Organizer field (in info card) ─────────────────────────────── */
+.td-info-field--organizer dd {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.td-organizer-name {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.td-organizer-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 8px;
+  height: 20px;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.td-organizer-badge--you {
+  background: color-mix(in srgb, var(--primary) 15%, transparent);
+  border: 1px solid color-mix(in srgb, var(--primary) 35%, transparent);
+  color: var(--primary);
+}
+
+.td-organizer-badge--view {
+  background: color-mix(in srgb, #94a3b8 12%, transparent);
+  border: 1px solid color-mix(in srgb, #94a3b8 28%, transparent);
+  color: #94a3b8;
+}

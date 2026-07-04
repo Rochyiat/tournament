@@ -6,6 +6,7 @@ import ConfirmDeleteDialog from '../components/ConfirmDeleteDialog'
 import EmptyState from '../components/EmptyState'
 import LoadingSpinner, { SkeletonCard } from '../components/LoadingSpinner'
 import NavBar from '../components/NavBar'
+import { useAuth } from '../context/AuthContext'
 import { getApiErrorMessage } from '../util/apiError'
 import {
   Trophy,
@@ -16,6 +17,9 @@ import {
   Users,
   Gamepad2,
   Calendar,
+  Globe,
+  UserCircle2,
+  UserCircle,
 } from 'lucide-react'
 import './Tournament.css'
 
@@ -30,36 +34,212 @@ function statusClass(status) {
   return `badge badge-${status?.toLowerCase()}`
 }
 
-function Tournament() {
+// ── Organizer tag — shown on every card ──────────────────────────────────────
+function OrganizerTag({ ownerUsername, isYou }) {
+  return (
+    <div className="trn-organizer-tag">
+      <UserCircle size={12} strokeWidth={2} />
+      <span className="trn-organizer-name">{ownerUsername ?? '—'}</span>
+      {isYou && <span className="trn-organizer-you">You</span>}
+    </div>
+  )
+}
+
+// ── Shared card for My Tournaments (with edit/delete) ────────────────────────
+function MyTournamentCard({ t, onView, onEdit, onDelete }) {
+  return (
+    <div className="tournament-card" onClick={() => onView(t.id)}>
+      <div className={`tournament-card-stripe tournament-card-stripe--${t.status?.toLowerCase()}`} />
+      <div className="tournament-card-inner">
+
+        <div className="tournament-card-header">
+          <span className={statusClass(t.status)}>{STATUS_LABEL[t.status] ?? t.status}</span>
+          <span className="tournament-card-game">
+            <Gamepad2 size={12} strokeWidth={2} />
+            {t.game}
+          </span>
+        </div>
+
+        <h2 className="tournament-card-name">{t.name}</h2>
+        <p className="tournament-card-host">by {t.host}</p>
+
+        {/* Organizer — always "You" in My Tournaments */}
+        <OrganizerTag ownerUsername={t.ownerUsername} isYou />
+
+        {t.description && (
+          <p className="tournament-card-desc">{t.description}</p>
+        )}
+
+        <div className="tournament-card-meta">
+          <span className="tournament-card-meta-item">
+            <Users size={13} strokeWidth={2} />
+            {t.maxParticipants} slots
+          </span>
+          {t.createdAt && (
+            <span className="tournament-card-meta-item">
+              <Calendar size={13} strokeWidth={2} />
+              {new Date(t.createdAt).toLocaleDateString()}
+            </span>
+          )}
+        </div>
+
+        <div className="tournament-card-actions" onClick={(e) => e.stopPropagation()}>
+          <button className="btn btn-secondary btn-sm" onClick={() => onView(t.id)}>
+            <Eye size={13} strokeWidth={2} />
+            View
+          </button>
+          {t.status === 'DRAFT' && (
+            <>
+              <button className="btn btn-ghost btn-sm" onClick={() => onEdit(t)}>
+                <Pencil size={13} strokeWidth={2} />
+                Edit
+              </button>
+              <button className="btn btn-danger btn-sm" onClick={() => onDelete(t)}>
+                <Trash2 size={13} strokeWidth={2} />
+                Delete
+              </button>
+            </>
+          )}
+        </div>
+
+      </div>
+    </div>
+  )
+}
+
+// ── Read-only card for Community Tournaments ─────────────────────────────────
+function CommunityTournamentCard({ t, onView }) {
+  return (
+    <div className="tournament-card tournament-card--community" onClick={() => onView(t.id)}>
+      <div className={`tournament-card-stripe tournament-card-stripe--${t.status?.toLowerCase()}`} />
+      <div className="tournament-card-inner">
+
+        <div className="tournament-card-header">
+          <span className={statusClass(t.status)}>{STATUS_LABEL[t.status] ?? t.status}</span>
+          <span className="tournament-card-game">
+            <Gamepad2 size={12} strokeWidth={2} />
+            {t.game}
+          </span>
+        </div>
+
+        <h2 className="tournament-card-name">{t.name}</h2>
+        <p className="tournament-card-host">by {t.host}</p>
+
+        {/* Organizer — never "You" in Community Tournaments */}
+        <OrganizerTag ownerUsername={t.ownerUsername} isYou={false} />
+
+        {t.description && (
+          <p className="tournament-card-desc">{t.description}</p>
+        )}
+
+        <div className="tournament-card-meta">
+          <span className="tournament-card-meta-item">
+            <Users size={13} strokeWidth={2} />
+            {t.maxParticipants} slots
+          </span>
+          {t.createdAt && (
+            <span className="tournament-card-meta-item">
+              <Calendar size={13} strokeWidth={2} />
+              {new Date(t.createdAt).toLocaleDateString()}
+            </span>
+          )}
+        </div>
+
+        {/* View only — no edit/delete/generate/score controls */}
+        <div className="tournament-card-actions" onClick={(e) => e.stopPropagation()}>
+          <button className="btn btn-secondary btn-sm" onClick={() => onView(t.id)}>
+            <Eye size={13} strokeWidth={2} />
+            View
+          </button>
+        </div>
+
+      </div>
+    </div>
+  )
+}
+
+// ── Section heading ───────────────────────────────────────────────────────────
+function SectionHeading({ icon: Icon, title, count, accent, action }) {
+  return (
+    <div className="trn-section-heading">
+      <div className="trn-section-heading-left">
+        <div className="trn-section-heading-icon" style={{ '--sh-accent': accent }}>
+          <Icon size={16} strokeWidth={2} />
+        </div>
+        <h2 className="trn-section-title">{title}</h2>
+        {count !== undefined && (
+          <span className="trn-section-count">{count}</span>
+        )}
+      </div>
+      {action && (
+        <button className="btn btn-primary btn-sm" onClick={action.onClick}>
+          <Plus size={14} strokeWidth={2.5} />
+          {action.label}
+        </button>
+      )}
+    </div>
+  )
+}
+
+// ── Main page ─────────────────────────────────────────────────────────────────
+export default function Tournament() {
   const navigate = useNavigate()
+  const { currentUser } = useAuth()
 
-  const [tournaments, setTournaments] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
+  // My tournaments
+  const [myTournaments, setMyTournaments]   = useState([])
+  const [myLoading, setMyLoading]           = useState(true)
+  const [myError, setMyError]               = useState('')
 
-  const [showForm, setShowForm] = useState(false)
-  const [editTarget, setEditTarget] = useState(null)
-  const [formLoading, setFormLoading] = useState(false)
-  const [formError, setFormError] = useState('')
+  // All tournaments (used to derive community)
+  const [allTournaments, setAllTournaments] = useState([])
+  const [allLoading, setAllLoading]         = useState(true)
+  const [allError, setAllError]             = useState('')
 
-  const [deleteTarget, setDeleteTarget] = useState(null)
-  const [deleteLoading, setDeleteLoading] = useState(false)
+  // Form / delete modals
+  const [showForm, setShowForm]             = useState(false)
+  const [editTarget, setEditTarget]         = useState(null)
+  const [formLoading, setFormLoading]       = useState(false)
+  const [formError, setFormError]           = useState('')
+  const [deleteTarget, setDeleteTarget]     = useState(null)
+  const [deleteLoading, setDeleteLoading]   = useState(false)
 
-  const fetchTournaments = useCallback(async () => {
-    setLoading(true)
-    setError('')
+  // ── Fetch my tournaments ──────────────────────────────────────────────────
+  const fetchMy = useCallback(async () => {
+    setMyLoading(true)
+    setMyError('')
     try {
-      const res = await tournamentApi.getAll()
-      setTournaments(res.data.data ?? [])
+      const res = await tournamentApi.getMy()
+      setMyTournaments(res.data.data ?? [])
     } catch (err) {
-      setError(getApiErrorMessage(err, 'Failed to load tournaments'))
+      setMyError(getApiErrorMessage(err, 'Failed to load your tournaments.'))
     } finally {
-      setLoading(false)
+      setMyLoading(false)
     }
   }, [])
 
-  useEffect(() => { fetchTournaments() }, [fetchTournaments])
+  // ── Fetch all tournaments (for community section) ─────────────────────────
+  const fetchAll = useCallback(async () => {
+    setAllLoading(true)
+    setAllError('')
+    try {
+      const res = await tournamentApi.getAll()
+      setAllTournaments(res.data.data ?? [])
+    } catch (err) {
+      setAllError(getApiErrorMessage(err, 'Failed to load community tournaments.'))
+    } finally {
+      setAllLoading(false)
+    }
+  }, [])
 
+  useEffect(() => { fetchMy(); fetchAll() }, [fetchMy, fetchAll])
+
+  // Community = all tournaments NOT owned by current user
+  const communityTournaments = allTournaments.filter(
+    (t) => t.ownerId !== currentUser?.id && t.ownerUsername !== currentUser?.username
+  )
+
+  // ── Form handlers ────────────────────────────────────────────────────────
   function openCreate() {
     setEditTarget(null)
     setFormError('')
@@ -82,10 +262,10 @@ function Tournament() {
         await tournamentApi.create(data)
       }
       setShowForm(false)
-      fetchTournaments()
+      fetchMy()
     } catch (err) {
       const msg = err.response?.data?.errors
-        ? Object.values(err.response.data.errors || {}).join(', ')
+        ? Object.values(err.response.data.errors).join(', ')
         : getApiErrorMessage(err, 'An error occurred. Please try again.')
       setFormError(msg)
     } finally {
@@ -99,9 +279,10 @@ function Tournament() {
     try {
       await tournamentApi.delete(deleteTarget.id)
       setDeleteTarget(null)
-      fetchTournaments()
+      fetchMy()
+      fetchAll()
     } catch (err) {
-      alert(err.response?.data?.message || 'Failed to delete tournament')
+      alert(err.response?.data?.message || 'Failed to delete tournament.')
     } finally {
       setDeleteLoading(false)
     }
@@ -111,97 +292,91 @@ function Tournament() {
     <div>
       <NavBar />
       <div className="page-container">
+
+        {/* Page header */}
         <div className="page-header">
           <div>
             <h1 className="page-title">Tournaments</h1>
-            <p className="page-subtitle">Manage and track all esports tournaments</p>
+            <p className="page-subtitle">Manage your tournaments and explore the community</p>
           </div>
-          <button className="btn btn-primary" onClick={openCreate}>
-            <Plus size={15} strokeWidth={2.5} />
-            New Tournament
-          </button>
         </div>
 
-        {error && <div className="alert alert-error" role="alert">{error}</div>}
-
-        {loading ? (
-          <div className="tournament-grid">
-            {Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)}
-          </div>
-        ) : tournaments.length === 0 ? (
-          <EmptyState
-            icon={Trophy}
-            title="No tournaments yet"
-            description="Create your first tournament to get started."
-            action={{ label: 'New Tournament', onClick: openCreate }}
+        {/* ════════════════════════════════════════════════
+            SECTION 1 — My Tournaments
+        ════════════════════════════════════════════════ */}
+        <section className="trn-section">
+          <SectionHeading
+            icon={UserCircle2}
+            title="My Tournaments"
+            count={myLoading ? undefined : myTournaments.length}
+            accent="var(--primary)"
+            action={{ label: 'Create Tournament', onClick: openCreate }}
           />
-        ) : (
-          <div className="tournament-grid">
-            {tournaments.map((t) => (
-              <div key={t.id} className="tournament-card" onClick={() => navigate(`/tournaments/${t.id}`)}>
 
-                {/* Card top stripe by status */}
-                <div className={`tournament-card-stripe tournament-card-stripe--${t.status?.toLowerCase()}`} />
+          {myError && <div className="alert alert-error" role="alert">{myError}</div>}
 
-                <div className="tournament-card-inner">
-                  {/* Header row */}
-                  <div className="tournament-card-header">
-                    <span className={statusClass(t.status)}>{STATUS_LABEL[t.status] ?? t.status}</span>
-                    <span className="tournament-card-game">
-                      <Gamepad2 size={12} strokeWidth={2} />
-                      {t.game}
-                    </span>
-                  </div>
+          {myLoading ? (
+            <div className="tournament-grid">
+              {Array.from({ length: 3 }).map((_, i) => <SkeletonCard key={i} />)}
+            </div>
+          ) : myTournaments.length === 0 ? (
+            <EmptyState
+              icon={Trophy}
+              title="You haven't created any tournaments yet."
+              description="Create your first tournament and start organizing your community."
+              action={{ label: 'Create Tournament', onClick: openCreate }}
+            />
+          ) : (
+            <div className="tournament-grid">
+              {myTournaments.map((t) => (
+                <MyTournamentCard
+                  key={t.id}
+                  t={t}
+                  onView={(tid) => navigate(`/tournaments/${tid}`)}
+                  onEdit={openEdit}
+                  onDelete={setDeleteTarget}
+                />
+              ))}
+            </div>
+          )}
+        </section>
 
-                  {/* Name */}
-                  <h2 className="tournament-card-name">{t.name}</h2>
-                  <p className="tournament-card-host">by {t.host}</p>
+        {/* ════════════════════════════════════════════════
+            SECTION 2 — Community Tournaments
+        ════════════════════════════════════════════════ */}
+        <section className="trn-section">
+          <SectionHeading
+            icon={Globe}
+            title="Community Tournaments"
+            count={allLoading ? undefined : communityTournaments.length}
+            accent="#a78bfa"
+          />
 
-                  {t.description && (
-                    <p className="tournament-card-desc">{t.description}</p>
-                  )}
+          {allError && <div className="alert alert-error" role="alert">{allError}</div>}
 
-                  {/* Meta */}
-                  <div className="tournament-card-meta">
-                    <span className="tournament-card-meta-item">
-                      <Users size={13} strokeWidth={2} />
-                      {t.maxParticipants} slots
-                    </span>
-                    {t.createdAt && (
-                      <span className="tournament-card-meta-item">
-                        <Calendar size={13} strokeWidth={2} />
-                        {new Date(t.createdAt).toLocaleDateString()}
-                      </span>
-                    )}
-                  </div>
+          {allLoading ? (
+            <div className="tournament-grid">
+              {Array.from({ length: 3 }).map((_, i) => <SkeletonCard key={i} />)}
+            </div>
+          ) : communityTournaments.length === 0 ? (
+            <div className="trn-community-empty">
+              <Globe size={28} strokeWidth={1} style={{ color: 'var(--text-muted)' }} />
+              <p>No community tournaments yet.</p>
+              <p className="page-subtitle">Tournaments created by other organizers will appear here.</p>
+            </div>
+          ) : (
+            <div className="tournament-grid">
+              {communityTournaments.map((t) => (
+                <CommunityTournamentCard
+                  key={t.id}
+                  t={t}
+                  onView={(tid) => navigate(`/tournaments/${tid}`)}
+                />
+              ))}
+            </div>
+          )}
+        </section>
 
-                  {/* Actions */}
-                  <div className="tournament-card-actions" onClick={(e) => e.stopPropagation()}>
-                    <button
-                      className="btn btn-secondary btn-sm"
-                      onClick={() => navigate(`/tournaments/${t.id}`)}
-                    >
-                      <Eye size={13} strokeWidth={2} />
-                      View
-                    </button>
-                    {t.status === 'DRAFT' && (
-                      <>
-                        <button className="btn btn-ghost btn-sm" onClick={() => openEdit(t)}>
-                          <Pencil size={13} strokeWidth={2} />
-                          Edit
-                        </button>
-                        <button className="btn btn-danger btn-sm" onClick={() => setDeleteTarget(t)}>
-                          <Trash2 size={13} strokeWidth={2} />
-                          Delete
-                        </button>
-                      </>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
       </div>
 
       {showForm && (
@@ -226,5 +401,3 @@ function Tournament() {
     </div>
   )
 }
-
-export default Tournament

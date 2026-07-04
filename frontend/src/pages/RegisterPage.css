@@ -1,32 +1,31 @@
 /* ═══════════════════════════════════════════════════════════════════
-   LoginPage.css — Dark Gaming Login
+   RegisterPage.css — matches LoginPage dark gaming style
    ═══════════════════════════════════════════════════════════════════ */
 
-.login-container {
+.register-container {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 1.5rem;
-  /* Subtle radial highlight behind the card */
   background-image:
     radial-gradient(ellipse 60% 50% at 50% 40%, rgba(0,200,255,0.07) 0%, transparent 70%);
 }
 
-.login-card {
+.register-card {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius-xl);
   box-shadow: 0 24px 80px rgba(0,0,0,0.55), 0 0 0 1px rgba(0,200,255,0.06);
   padding: 2.75rem 2.25rem;
   width: 100%;
-  max-width: 420px;
+  max-width: 440px;
   position: relative;
   overflow: hidden;
 }
 
 /* Decorative top edge glow */
-.login-card::before {
+.register-card::before {
   content: '';
   position: absolute;
   top: 0; left: 10%; right: 10%;
@@ -34,12 +33,12 @@
   background: linear-gradient(90deg, transparent, rgba(0,200,255,0.45), transparent);
 }
 
-.login-header {
+.register-header {
   text-align: center;
-  margin-bottom: 2.25rem;
+  margin-bottom: 2rem;
 }
 
-.login-header h1 {
+.register-header h1 {
   font-family: 'Orbitron', sans-serif;
   font-size: 1.5rem;
   font-weight: 800;
@@ -48,13 +47,18 @@
   margin-bottom: 0.5rem;
 }
 
-.login-header p {
-  font-size: 0.9rem;
+.register-header p {
+  font-size: 0.875rem;
   color: var(--text-secondary);
+  line-height: 1.5;
 }
 
-/* Form fields override inside login */
-.login-card .form-group label {
+/* Reuse form-group styles from global index.css but tighten spacing */
+.register-card .form-group {
+  margin-bottom: 1.1rem;
+}
+
+.register-card .form-group label {
   font-size: 0.75rem;
   font-weight: 800;
   letter-spacing: 0.12em;
@@ -62,43 +66,51 @@
   color: var(--text-secondary);
 }
 
-.login-card .form-group input {
+.register-card .form-group input {
   background: rgba(10, 17, 30, 0.85);
   font-size: 0.95rem;
 }
-.login-card .form-group input:focus {
+
+.register-card .form-group input:focus {
   border-color: var(--primary);
   box-shadow: 0 0 0 3px rgba(0,200,255,0.14), 0 0 20px rgba(0,200,255,0.10);
 }
-.login-card .field-error { font-size: 0.78rem; }
-.login-card .alert { font-size: 0.875rem; margin-bottom: 1.25rem; }
 
-.btn-login {
+.register-card .field-error {
+  font-size: 0.78rem;
+}
+
+.register-card .alert {
+  font-size: 0.875rem;
+  margin-bottom: 1.25rem;
+}
+
+.btn-register {
   width: 100%;
   margin-top: 0.5rem;
 }
 
-@media (max-width: 480px) {
-  .login-card { padding: 2rem 1.5rem; }
-}
-
-
-.login-register-link {
+.register-login-link {
   text-align: center;
   margin-top: 1.5rem;
   font-size: 0.875rem;
   color: var(--text-secondary);
 }
 
-.login-register-link a {
+.register-login-link a {
   color: var(--primary);
   font-weight: 600;
   text-decoration: none;
 }
 
-.login-register-link a:hover {
+.register-login-link a:hover {
   text-decoration: underline;
 }
+
+@media (max-width: 480px) {
+  .register-card { padding: 2rem 1.5rem; }
+}
+
 
 /* ── Back to Home link ───────────────────────────────────────────── */
 .auth-back-link {

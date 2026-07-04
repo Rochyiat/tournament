@@ -138,3 +138,94 @@
   }
   .participant-avatar { display: none; }
 }
+
+
+/* ── Search bar ──────────────────────────────────────────────────── */
+.participant-search-wrap {
+  padding: 0.85rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  background: rgba(0, 0, 0, 0.10);
+}
+
+.participant-search-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.participant-search-icon {
+  position: absolute;
+  left: 0.85rem;
+  color: var(--text-muted);
+  pointer-events: none;
+  flex-shrink: 0;
+}
+
+.participant-search-input {
+  width: 100%;
+  padding: 0.55rem 2.5rem 0.55rem 2.5rem;
+  background: rgba(10, 17, 30, 0.80);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 0.9rem;
+  font-family: inherit;
+  font-weight: 500;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+  outline: none;
+}
+
+.participant-search-input::placeholder {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.participant-search-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(0, 200, 255, 0.12), 0 0 16px rgba(0, 200, 255, 0.08);
+}
+
+.participant-search-clear {
+  position: absolute;
+  right: 0.7rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--bg-elevated, #1a2840);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+}
+
+.participant-search-clear:hover {
+  color: var(--text);
+  background: rgba(255, 77, 109, 0.12);
+  border-color: rgba(255, 77, 109, 0.35);
+}
+
+/* ── Search empty state ──────────────────────────────────────────── */
+.participant-search-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 3rem 1rem;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.participant-search-empty svg {
+  color: var(--text-muted);
+  margin-bottom: 0.25rem;
+}
+
+.participant-search-empty p {
+  margin: 0;
+  font-weight: 600;
+}

@@ -3,7 +3,9 @@ com\example\tournament\dto\response\AuthResponse.class
 com\example\tournament\repository\ParticipantRepository.class
 com\example\tournament\dto\response\ParticipantResponse.class
 com\example\tournament\dto\request\RegisterParticipantRequest.class
+com\example\tournament\service\AuthorizationService.class
 com\example\tournament\service\TournamentRegistrationService.class
+com\example\tournament\config\ParticipantSeeder.class
 com\example\tournament\TournamentApplication.class
 com\example\tournament\entity\Match$MatchBuilder.class
 com\example\tournament\repository\MatchRepository.class

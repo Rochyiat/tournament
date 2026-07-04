@@ -32,13 +32,16 @@ public class BracketService {
     private final TournamentRepository tournamentRepository;
     private final TournamentParticipantRepository tournamentParticipantRepository;
     private final MatchRepository matchRepository;
+    private final AuthorizationService authorizationService;
 
     public BracketService(TournamentRepository tournamentRepository,
                            TournamentParticipantRepository tournamentParticipantRepository,
-                           MatchRepository matchRepository) {
+                           MatchRepository matchRepository,
+                           AuthorizationService authorizationService) {
         this.tournamentRepository = tournamentRepository;
         this.tournamentParticipantRepository = tournamentParticipantRepository;
         this.matchRepository = matchRepository;
+        this.authorizationService = authorizationService;
     }
 
     // ─── GENERATE BRACKET ────────────────────────────────────────────────────
@@ -46,6 +49,9 @@ public class BracketService {
     @Transactional
     public void generateBracket(Long tournamentId) {
         Tournament tournament = findTournamentOrThrow(tournamentId);
+
+        // Only owner or admin can generate a bracket
+        authorizationService.checkOwnerOrAdmin(tournament);
 
         // Validation
         if (tournament.getStatus() != TournamentStatus.READY) {

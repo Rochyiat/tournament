@@ -139,3 +139,127 @@
 @media (max-width: 600px) {
   .tournament-grid { grid-template-columns: 1fr; }
 }
+
+
+/* ── Section layout ──────────────────────────────────────────────── */
+.trn-section {
+  margin-bottom: 2.75rem;
+}
+
+/* ── Section heading ─────────────────────────────────────────────── */
+.trn-section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.1rem;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.trn-section-heading-left {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.trn-section-heading-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--sh-accent, var(--primary)) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--sh-accent, var(--primary)) 22%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--sh-accent, var(--primary));
+  flex-shrink: 0;
+}
+
+.trn-section-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: 0.04em;
+  margin: 0;
+}
+
+.trn-section-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--bg-elevated, #1a2840);
+  border: 1px solid var(--border);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  font-family: 'Rajdhani', sans-serif;
+  letter-spacing: 0.05em;
+}
+
+/* ── Community empty state ───────────────────────────────────────── */
+.trn-community-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 2.5rem 1rem;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  background: var(--bg-card);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.trn-community-empty p {
+  margin: 0;
+}
+
+/* ── Community card subtle tint ──────────────────────────────────── */
+.tournament-card--community {
+  border-color: color-mix(in srgb, #a78bfa 10%, var(--border));
+}
+
+.tournament-card--community:hover {
+  border-color: color-mix(in srgb, #a78bfa 30%, var(--border));
+  box-shadow: 0 16px 48px rgba(0,0,0,0.5), 0 0 0 1px color-mix(in srgb, #a78bfa 20%, transparent);
+}
+
+
+/* ── Organizer tag (on tournament cards) ─────────────────────────── */
+.trn-organizer-tag {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 500;
+  margin-top: 0.1rem;
+}
+
+.trn-organizer-name {
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.trn-organizer-you {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 6px;
+  height: 17px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--success) 15%, transparent);
+  border: 1px solid color-mix(in srgb, var(--success) 35%, transparent);
+  color: var(--success);
+  font-size: 0.67rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 1;
+}

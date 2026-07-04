@@ -6,13 +6,23 @@ import EmptyState from '../components/EmptyState'
 import LoadingSpinner, { SkeletonTable } from '../components/LoadingSpinner'
 import NavBar from '../components/NavBar'
 import { getApiErrorMessage } from '../util/apiError'
-import { Users, Plus, Pencil, Trash2 } from 'lucide-react'
+import { Users, Plus, Pencil, Trash2, Search, X } from 'lucide-react'
 import './Participant.css'
 
 function Participant() {
   const [participants, setParticipants] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+
+  // ── Search ──────────────────────────────────────────────────────
+  const [query, setQuery] = useState('')
+
+  // Case-insensitive partial match on participant name
+  const filtered = query.trim() === ''
+    ? participants
+    : participants.filter((p) =>
+        p.name.toLowerCase().includes(query.trim().toLowerCase())
+      )
 
   const [showForm, setShowForm] = useState(false)
   const [editTarget, setEditTarget] = useState(null)
@@ -91,7 +101,7 @@ function Participant() {
           <div>
             <h1 className="page-title">Participants</h1>
             <p className="participant-subtitle">
-              Global registry — {loading ? '…' : participants.length} player{participants.length !== 1 ? 's' : ''}
+              {loading ? '…' : `${participants.length} player${participants.length !== 1 ? 's' : ''} in your roster`}
             </p>
           </div>
           <button className="btn btn-primary" onClick={openCreate}>
@@ -118,50 +128,87 @@ function Participant() {
                 <Users size={15} strokeWidth={2} />
                 All Participants
               </div>
-              <span className="participant-card-count">{participants.length} total</span>
+              <span className="participant-card-count">
+                {query.trim() ? `${filtered.length} / ${participants.length}` : `${participants.length} total`}
+              </span>
             </div>
-            <table className="participant-table">
-              <thead>
-                <tr>
-                  <th style={{ width: '48px' }}>#</th>
-                  <th>Name</th>
-                  <th style={{ width: '160px' }}>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {participants.map((participant, idx) => (
-                  <tr key={participant.id}>
-                    <td className="participant-num">{idx + 1}</td>
-                    <td className="participant-name">
-                      <div className="participant-avatar" aria-hidden="true">
-                        {participant.name.charAt(0).toUpperCase()}
-                      </div>
-                      {participant.name}
-                    </td>
-                    <td>
-                      <div className="participant-actions">
-                        <button
-                          className="btn btn-ghost btn-sm"
-                          onClick={() => openEdit(participant)}
-                          aria-label={`Edit ${participant.name}`}
-                        >
-                          <Pencil size={13} strokeWidth={2} />
-                          Edit
-                        </button>
-                        <button
-                          className="btn btn-danger btn-sm"
-                          onClick={() => setDeleteTarget(participant)}
-                          aria-label={`Delete ${participant.name}`}
-                        >
-                          <Trash2 size={13} strokeWidth={2} />
-                          Delete
-                        </button>
-                      </div>
-                    </td>
+
+            {/* ── Search bar ── */}
+            <div className="participant-search-wrap">
+              <div className="participant-search-input-wrap">
+                <Search size={15} strokeWidth={2} className="participant-search-icon" />
+                <input
+                  type="text"
+                  className="participant-search-input"
+                  placeholder="Search by nickname or game UID…"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  aria-label="Search participants"
+                />
+                {query && (
+                  <button
+                    className="participant-search-clear"
+                    onClick={() => setQuery('')}
+                    aria-label="Clear search"
+                    type="button"
+                  >
+                    <X size={13} strokeWidth={2.5} />
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* ── Table or search empty state ── */}
+            {filtered.length === 0 ? (
+              <div className="participant-search-empty">
+                <Search size={28} strokeWidth={1} />
+                <p>No participants found.</p>
+                <p className="participant-subtitle">Try another nickname.</p>
+              </div>
+            ) : (
+              <table className="participant-table">
+                <thead>
+                  <tr>
+                    <th style={{ width: '48px' }}>#</th>
+                    <th>Name</th>
+                    <th style={{ width: '160px' }}>Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {filtered.map((participant, idx) => (
+                    <tr key={participant.id}>
+                      <td className="participant-num">{idx + 1}</td>
+                      <td className="participant-name">
+                        <div className="participant-avatar" aria-hidden="true">
+                          {participant.name.charAt(0).toUpperCase()}
+                        </div>
+                        {participant.name}
+                      </td>
+                      <td>
+                        <div className="participant-actions">
+                          <button
+                            className="btn btn-ghost btn-sm"
+                            onClick={() => openEdit(participant)}
+                            aria-label={`Edit ${participant.name}`}
+                          >
+                            <Pencil size={13} strokeWidth={2} />
+                            Edit
+                          </button>
+                          <button
+                            className="btn btn-danger btn-sm"
+                            onClick={() => setDeleteTarget(participant)}
+                            aria-label={`Delete ${participant.name}`}
+                          >
+                            <Trash2 size={13} strokeWidth={2} />
+                            Delete
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
           </div>
         )}
       </div>

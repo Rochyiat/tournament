@@ -6,14 +6,11 @@ import com.example.tournament.dto.response.TournamentResponse;
 import com.example.tournament.entity.Tournament;
 import com.example.tournament.entity.User;
 import com.example.tournament.enums.TournamentStatus;
-import com.example.tournament.exception.AccessForbiddenException;
 import com.example.tournament.repository.TournamentParticipantRepository;
 import com.example.tournament.repository.TournamentRepository;
-import com.example.tournament.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,21 +24,21 @@ public class TournamentService {
 
     private final TournamentRepository tournamentRepository;
     private final TournamentParticipantRepository participantRepository;
-    private final UserRepository userRepository;
+    private final AuthorizationService authorizationService;
 
     public TournamentService(TournamentRepository tournamentRepository,
                               TournamentParticipantRepository participantRepository,
-                              UserRepository userRepository) {
+                              AuthorizationService authorizationService) {
         this.tournamentRepository = tournamentRepository;
         this.participantRepository = participantRepository;
-        this.userRepository = userRepository;
+        this.authorizationService = authorizationService;
     }
 
     // ─── CREATE ──────────────────────────────────────────────────────────────
 
     @Transactional
     public TournamentResponse create(CreateTournamentRequest request) {
-        User currentUser = getCurrentUser();
+        User currentUser = authorizationService.getCurrentUser();
 
         Tournament tournament = Tournament.builder()
                 .name(request.getName())
@@ -50,7 +47,7 @@ public class TournamentService {
                 .host(request.getHost())
                 .maxParticipants(request.getMaxParticipants())
                 .status(TournamentStatus.DRAFT)
-                .createdBy(currentUser)
+                .owner(currentUser)
                 .build();
 
         Tournament saved = tournamentRepository.save(tournament);
@@ -77,8 +74,8 @@ public class TournamentService {
 
     @Transactional(readOnly = true)
     public List<TournamentResponse> getMyTournaments() {
-        User currentUser = getCurrentUser();
-        return tournamentRepository.findByCreatedBy(currentUser)
+        User currentUser = authorizationService.getCurrentUser();
+        return tournamentRepository.findByOwner(currentUser)
                 .stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
@@ -88,10 +85,10 @@ public class TournamentService {
 
     @Transactional
     public TournamentResponse update(Long id, UpdateTournamentRequest request) {
-        User currentUser = getCurrentUser();
         Tournament tournament = findByIdOrThrow(id);
 
-        checkOwnership(tournament, currentUser);
+        // Only owner or admin can update
+        authorizationService.checkOwnerOrAdmin(tournament);
         checkIsDraft(tournament, "update");
 
         if (request.getName() != null)            tournament.setName(request.getName());
@@ -101,7 +98,7 @@ public class TournamentService {
         if (request.getMaxParticipants() != null) tournament.setMaxParticipants(request.getMaxParticipants());
 
         Tournament saved = tournamentRepository.save(tournament);
-        logger.info("Tournament updated: id={}, by={}", id, currentUser.getUsername());
+        logger.info("Tournament updated: id={}, by={}", id, authorizationService.getCurrentUser().getUsername());
 
         return toResponse(saved);
     }
@@ -110,10 +107,10 @@ public class TournamentService {
 
     @Transactional
     public void delete(Long id) {
-        User currentUser = getCurrentUser();
         Tournament tournament = findByIdOrThrow(id);
 
-        checkOwnership(tournament, currentUser);
+        // Only owner or admin can delete
+        authorizationService.checkOwnerOrAdmin(tournament);
         checkIsDraft(tournament, "delete");
 
         if (participantRepository.existsByTournamentId(id)) {
@@ -122,21 +119,15 @@ public class TournamentService {
         }
 
         tournamentRepository.delete(tournament);
-        logger.info("Tournament deleted: id={}, by={}", id, currentUser.getUsername());
+        logger.info("Tournament deleted: id={}", id);
     }
 
     // ─── HELPERS ──────────────────────────────────────────────────────────────
 
-    private Tournament findByIdOrThrow(Long id) {
+    Tournament findByIdOrThrow(Long id) {
         return tournamentRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(
                         "Tournament not found with id: " + id));
-    }
-
-    private void checkOwnership(Tournament tournament, User currentUser) {
-        if (!tournament.getCreatedBy().getId().equals(currentUser.getId())) {
-            throw new AccessForbiddenException("You are not the owner of this tournament");
-        }
     }
 
     private void checkIsDraft(Tournament tournament, String action) {
@@ -146,13 +137,7 @@ public class TournamentService {
         }
     }
 
-    private User getCurrentUser() {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        return userRepository.findByUsername(username)
-                .orElseThrow(() -> new EntityNotFoundException("User not found: " + username));
-    }
-
-    private TournamentResponse toResponse(Tournament t) {
+    TournamentResponse toResponse(Tournament t) {
         TournamentResponse response = new TournamentResponse();
         response.setId(t.getId());
         response.setName(t.getName());
@@ -161,8 +146,8 @@ public class TournamentService {
         response.setHost(t.getHost());
         response.setMaxParticipants(t.getMaxParticipants());
         response.setStatus(t.getStatus());
-        response.setCreatedById(t.getCreatedBy().getId());
-        response.setCreatedByUsername(t.getCreatedBy().getUsername());
+        response.setOwnerId(t.getOwner().getId());
+        response.setOwnerUsername(t.getOwner().getUsername());
         response.setCreatedAt(t.getCreatedAt());
         response.setUpdatedAt(t.getUpdatedAt());
         return response;
